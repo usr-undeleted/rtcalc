@@ -1,0 +1,469 @@
+#include <ctype.h>
+#include <signal.h>
+#include <stdint.h>
+#include <termios.h>
+#include <unistd.h>
+#include <errno.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+enum tokenType {
+    SKIP,
+    NUMBER,
+    OPERATOR
+};
+
+struct calcToken {
+    enum tokenType type;
+    double val;
+    char op;
+};
+
+struct termios backup  = { 0 };
+int retCode = 0;
+#define BUFFER_SIZE 4097 // 4096 is the actual limit
+#define RESULT_SIZE 1024
+#define USER_MISTAKE 2
+#define CODE_MISTAKE 1
+#define PROMPT ">>> "
+#define WELCOME "Welcome to rtcalc!\n"
+
+
+//const char validList[]  = "0123456789+-/* ().^";
+//const char operations[] = "+-*/^";
+#define VALID_LIST "0123456789+-*/().^ "
+#define OPERATIONS "+-*/^"
+#define VALID_NUMS "0123456789+-."
+
+void handleCtrlC(int sig_num) {
+    fprintf(stderr, "\nInterrupted, exiting...\n");
+    exit(retCode);
+}
+
+void restoreTerminal(void) {
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &backup);
+}
+
+
+// priority list for operators
+uint8_t getPriority(char operation) {
+    switch (operation) {
+        case '+': case '-': return 1;
+        case '*': case '/': return 2;
+        case '^': return 3;
+    }
+    return 0;
+}
+
+void skipWhitespace(const char **pp) {
+    while (isspace(**pp)) (*pp)++;
+};
+
+// look for invalid characters
+int validateBuffer(char *buffer, int *highestPrio) {
+    char *ptr = buffer;
+    ssize_t openParentheses = 0; // find ()
+    uint8_t twoNum = 0; // for example, '2   2' is invalid, since no op
+    size_t nums = 0, ops = 0;
+
+    while (*ptr) {
+        if (isspace(*ptr)) {
+            ptr++;
+            continue;
+        }
+
+        // compares nums to ops
+        if (ops != (nums - 1) && nums < 0) {
+            return 5;
+        }
+
+        // find num
+        if (*ptr == '.' || isdigit(*ptr)) {
+            // skip
+            strtod(ptr, &ptr);
+            nums++;
+        }
+
+        // is first operand invalid?
+        if (ptr == buffer && strchr(OPERATIONS, *ptr)) return 2;
+
+        // find unclosed parentheses
+        switch (*ptr) {
+            case '(': {
+                openParentheses++;
+                ptr++;
+                continue;
+            }
+            case ')': {
+                if (openParentheses) {
+                    openParentheses--;
+                } else {
+                    return 3;
+                }
+                ptr++;
+                continue;
+            }
+        }
+
+        // look for invalid char
+        if (!strchr(VALID_LIST, *ptr)) return 1;
+
+        // is second operand invalid? + find operator
+        if (strchr(VALID_LIST, *ptr)) {
+            ops++;
+            uint8_t prio = getPriority(*ptr), tru = 0;
+            if (prio > *highestPrio) *highestPrio = prio;
+
+            while (*ptr) {
+                if (!isdigit(*++ptr)) {
+                    tru = 1;
+                    break;
+                }
+
+            }
+
+            if (!tru && nums != 1) return 3;
+        }
+
+        ptr++;
+    }
+
+    if (openParentheses > 0) return 2;
+    return 0;
+}
+// used by func above
+char *retToStr(char err) {
+    switch (err) {
+        case 1: return "Invalid character in formula."; break;
+        case 2: return "Not enough closing parentheses."; break;
+        case 3: return "Not enough opening parentheses."; break;
+        case 9: return "Input size limit reached - Sorry!"; break;
+        default: return "Unknown error num - Sorry! :p"; break;
+    }
+}
+
+// count the number of tokens on formula to find
+// correct mem allocate size
+size_t countTokens(const char *buf) {
+    int count = 0;
+    const char *p = buf;
+    while (*p) {
+        skipWhitespace(&p);
+
+        if (strchr(VALID_NUMS, *p)) {
+            if (*p != '.') {
+                strtod(p, (char**)&p);
+
+            } else {
+                p++;
+            }
+
+            count++;
+
+        } else if (strchr(OPERATIONS, *p)) {
+            p++;
+            count++;
+
+        } else if (*p == '(' || *p == ')') {
+            p++;
+            count++;
+        }
+    }
+
+    return count;
+}
+
+// calculate 3 tokens
+double calculateTrio(double left, char op, double right) {
+    double result = 0;
+    switch (op) {
+        case '+': result = left + right; break;
+        case '-': result = left - right; break;
+        case '/': result = left / right; break;
+        case '*': result = left * right; break;
+        case '^': result = pow(left, right); break;
+
+        default: break;
+    }
+
+    return result;
+}
+
+// orchestrate everything together
+double calculateBuffer(const char *buf, int highestPrio) {
+    // each token eventually gets reduced to result
+    size_t count = countTokens(buf);
+    struct calcToken tokens[count];
+    memset(tokens, '\0', count * sizeof(struct calcToken));
+
+    // populate array
+    char *ptr = (char *)buf;
+    int j = 0; // what token we are in
+    while (*ptr) {
+        skipWhitespace((const char **)&ptr);
+
+        // parentheses
+        if (*ptr == '(' || *ptr == ')') {
+            tokens[j].type = SKIP;
+            ptr++;
+            j++;
+            continue;
+        }
+
+        // set number
+        tokens[j].type = NUMBER;
+        tokens[j].val = strtod(ptr, &ptr);
+        j++;
+
+        skipWhitespace((const char **)&ptr);
+
+        // break early if there is nothing fowards
+        if (*ptr == '\0') break;
+
+        // set operand
+        tokens[j].type = OPERATOR;
+        tokens[j].op = *ptr;
+        ptr++;
+        j++;
+    }
+
+    // repeat parse loop, looking for highest prio
+    for (int prio = highestPrio; prio >= 1; prio--) {
+
+        // get (example) [2][+][2], compress to [SKIP][4][SKIP]
+        for (int i = 0; i < count; i++) {
+            if (tokens[i].type != OPERATOR ||
+                getPriority(tokens[i].op) != prio ||
+                tokens[i].type == SKIP) continue;
+
+            // get left value
+            double left = 0;
+            int lidx = 0;
+            for (int j = i - 1; j >= 0; j--) {
+                if (tokens[j].type == NUMBER) {
+                    left = tokens[j].val;
+                    lidx = j;
+                    break;
+                }
+            }
+
+            // get right value
+            double right = 0;
+            int ridx = 0;
+            for (int j = i + 1; j < count; j++) {
+                if (tokens[j].type == NUMBER) {
+                    right = tokens[j].val;
+                    ridx = j;
+                    break;
+                }
+            }
+
+            tokens[i].val = calculateTrio(left, tokens[i].op, right);
+            tokens[i].type = NUMBER;
+            tokens[lidx].type = SKIP;
+            tokens[ridx].type = SKIP;
+        }
+    }
+
+    double result = 0;
+    int i = 0;
+    while (i < count) {
+        if (tokens[i].type == NUMBER) {
+            //free(tokens);
+            return tokens[i].val;
+        }
+        i++;
+    }
+    return 0;
+}
+
+// return offset of how much we moved to the left
+size_t cursorToLeftWhitespace(const char *buf, size_t offset) {
+    size_t ret = 0;
+    char *ptr = (char *)buf + offset;
+    ptr--;
+
+    while (!isspace(*ptr)) {
+        ptr--;
+        ret++;
+        if (ptr == buf) break;
+    }
+
+    return ret;
+}
+
+int main () {
+    // handle signal
+    signal(SIGINT, handleCtrlC);
+
+    struct termios newMode = { 0 };
+    // populate backup and define new mode
+    if (tcgetattr(STDIN_FILENO, &backup) == -1) {
+        fprintf(stderr, "Failed to backup term attributes: %s\n", strerror(errno));
+        return CODE_MISTAKE;
+    }
+    atexit(restoreTerminal);
+
+    newMode = backup;
+    newMode.c_lflag &= ~(ICANON | ECHO); // don't wait for new line and dont say anything
+    newMode.c_cc[VMIN]  = 1; // get one char at a time
+    newMode.c_cc[VTIME] = 0;
+    // set changes
+    tcsetattr(STDIN_FILENO, TCSAFLUSH, &newMode);
+
+    // main loop to pupulate main buffer
+    char calcBuffer[BUFFER_SIZE] = { 0 };
+    unsigned int cursorPos = 0;
+
+    // show prompt + save cursor pos
+    printf("\n%s\e[s", PROMPT);
+    char result[RESULT_SIZE] = { 0 };
+
+    while(1) {
+        int highestPrio = 0;
+        uint8_t ret = validateBuffer(calcBuffer, &highestPrio); // find errors
+        if (cursorPos == 4096) ret = 9; // input size limit
+
+        // define result
+        if (!ret) {
+            if (cursorPos == 0 && calcBuffer[0] == '\0') {
+                memset(result, '\0', sizeof(result));
+                memcpy(result, "Welcome to the realtime math CLI tool!", sizeof(result));
+
+            } else {
+
+                double calc = calculateBuffer(calcBuffer, highestPrio);
+                if (ret) {
+                    snprintf(result, sizeof(result), "Can't calculate: %s", retToStr(ret));
+
+                } else {
+                    snprintf(result, sizeof(result), "%lf", calc);
+                }
+
+            }
+        } else {
+            snprintf(result, sizeof(result), "Can't calculate: %s", retToStr(ret));
+        }
+
+        printf("\e[u\e[J"                  // move the cursor back to the start
+               "\e[A\r\e[2K%s\r\e[B\e[4C"  // move cursor to result, print the message, return back to start
+               "%s%s\e[0m",                // print the buffer
+               result, ret ? "\e[31m" : "", calcBuffer);
+
+        if (ret == 9) continue;
+
+        int len = strlen(calcBuffer);
+        // move the cursor
+        // only do it when cursor isn't already at the end
+        if (len > cursorPos) printf("\e[%dD", len - cursorPos);
+
+        char c = getchar();
+        // prevent newlines
+        if (c == '\n' || c == 0x0C) continue;
+
+        // escape character
+        if (c == 0x1B) {
+            c = getchar();
+            if (c == '[') {
+                c = getchar();
+
+                switch (c) {
+                    // movement keys
+                    case 'C': {
+                        // right arrow
+                        if (cursorPos < len) cursorPos++;
+                        continue;
+                        break;
+                    }
+                    case 'D': {
+                        // left arrow
+                        if (cursorPos > 0) cursorPos--;
+                        continue;
+                        break;
+                    }
+
+
+                    // ctrl + arrow key
+                    case '1': {
+                        c = getchar();
+                        if (c != ';') break;
+                        c = getchar();
+                        if (c != 5) break;
+                        c = getchar();
+
+                        switch (c) {
+                            // ctrl + right arrow
+                            case 'C': {
+                                break;
+                            }
+                            // ctrl + left arrow
+                            case 'D': {
+                                cursorToLeftWhitespace(calcBuffer, len - cursorPos);
+                                break;
+                            }
+                        }
+
+                        break;
+                    }
+
+                    default: continue; break;
+                }
+            }
+        }
+
+        if (c == 127 || c == 0x8) {
+            // backspace
+            if (cursorPos > 0) {
+                // move everything back, accounting for cursorPos
+                memmove(&calcBuffer[cursorPos - 1], &calcBuffer[cursorPos], len - cursorPos);
+                cursorPos--;
+                calcBuffer[--len] = '\0';
+            }
+
+        } else if (c == 0x17) {
+            // ctrl + w, aka delete word
+            uint8_t leftWhite = 0;
+
+            while (cursorPos > 0) {
+                // skip trailling whitespace
+                if (!leftWhite) {
+                    if (!isspace(calcBuffer[cursorPos - 1])) leftWhite = 1;
+                } else {
+                    if (isspace(calcBuffer[cursorPos - 1])) break;
+                }
+
+                // delete on loop
+                memmove(&calcBuffer[cursorPos - 1], &calcBuffer[cursorPos], len - cursorPos);
+                cursorPos--;
+                calcBuffer[--len] = '\0';
+            }
+
+        } else if (c == 0x18) {
+            // ctrl + k, aka clear line
+            len = 0;
+            cursorPos = 0;
+            memset(calcBuffer, '\0', sizeof(calcBuffer));
+
+        } else if (c == 0x1) {
+            cursorPos = 0;
+
+        } else if (c == 0x5) {
+            cursorPos = len;
+
+        } else {
+            // append (if character is valid, ofc)
+            // we move the buffer to make space, like for when the cursor isnt at the end
+            if (isprint(c)) {
+                memmove(&calcBuffer[cursorPos + 1], &calcBuffer[cursorPos], len - cursorPos + 1);
+                calcBuffer[cursorPos++] = c;
+            }
+            len++;
+        }
+    }
+
+    putchar('\n');
+    // set everything back to normal
+    return retCode;
+}
