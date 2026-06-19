@@ -21,7 +21,7 @@ struct calcToken {
     char op;
 };
 
-struct termios backup  = { 0 };
+struct termios backup = { 0 };
 int retCode = 0;
 #define BUFFER_SIZE 4097 // 4096 is the actual limit
 #define RESULT_SIZE 1024
@@ -29,13 +29,8 @@ int retCode = 0;
 #define CODE_MISTAKE 1
 #define PROMPT ">>> "
 #define WELCOME "Welcome to rtcalc!\n"
-
-
-//const char validList[]  = "0123456789+-/* ().^";
-//const char operations[] = "+-*/^";
 #define VALID_LIST "0123456789+-*/().^ "
 #define OPERATIONS "+-*/^"
-#define VALID_NUMS "0123456789+-."
 
 void handleCtrlC(int sig_num) {
     fprintf(stderr, "\nInterrupted, exiting...\n");
@@ -281,6 +276,8 @@ double calculateBuffer(const char *buf, int highestPrio) {
     // populate array
     char *ptr = (char *)buf;
     int j = 0; // what token we are in
+    uint8_t mode = 0;
+
     while (*ptr) {
         skipWhitespace((const char **)&ptr);
 
@@ -291,6 +288,7 @@ double calculateBuffer(const char *buf, int highestPrio) {
             j++;
             continue;
         }
+        /*
 
         // set number
         tokens[j].type = NUMBER;
@@ -307,6 +305,27 @@ double calculateBuffer(const char *buf, int highestPrio) {
         tokens[j].op = *ptr;
         ptr++;
         j++;
+        */
+
+        // trees
+        if (!mode) {
+            // numbers
+            tokens[j].type = NUMBER;
+            tokens[j].val = strtod(ptr, &ptr);
+            j++;
+
+        } else {
+            // operators
+            tokens[j].type = OPERATOR;
+            tokens[j].op = *ptr;
+            ptr++;
+            j++;
+        }
+
+        // break early if there is nothing fowards
+        if (*ptr == '\0') break;
+
+        mode = !mode;
     }
 
     // repeat parse loop, looking for highest prio
