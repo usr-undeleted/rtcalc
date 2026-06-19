@@ -29,7 +29,7 @@ To finally run the program, run:
 
 ## Plans
 - Even more shell-like navigation features
-- Customizable parameters such as changing the input PS1 or toggling cosmetics.
+- Customizable parameters such as changing the input prompt or toggling cosmetics.
 - Syntax coloring
 - New functions
 
