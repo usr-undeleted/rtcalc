@@ -260,25 +260,10 @@ size_t countTokens(const char *buf) {
         // functions
         if (!mode) {
             if (!strncmp(ptr, "sqrt", 4)) {
-                char *close = strchr(ptr, '[');
-                char *depthPtr = close;
-                size_t depth = 0;
-                // find final bracket
-                while (*depthPtr) {
-                    switch (*depthPtr) {
-                        case '[': depth++; break;
-                        case ']': {
-                            close = depthPtr;
-                            if (depth > 0) depth--;
-                            break;
-                        }
-                    }
+                char *open = ptr;
+                char *close = findFuncClose(ptr, &open, NULL);
 
-                    depthPtr++;
-                    if (depth == 0) break;
-                }
-
-                ptr = close + 1; // move pointer to after everything
+                ptr = close + 1;
                 count++;
                 mode = !mode;
                 continue;
@@ -341,26 +326,11 @@ double calculateBuffer(const char *buf, const int highestPrio) {
         // functions
         if (!mode) {
             if (!strncmp(ptr, "sqrt", 4)) {
-                // form child
-                char *open  = strchr(ptr, '[');
-                char *close = open;
-                char *depthPtr = open;
-                size_t depth = 0;
-                int childPrio = 0;
-                // find final bracket
-                while (*depthPtr) {
-                    switch (*depthPtr) {
-                        case '[': depth++; break;
-                        case ']': {
-                            close = depthPtr;
-                            if (depth > 0) depth--;
-                            break;
-                        }
-                    }
+                char *open = ptr;
+                char *close = findFuncClose(ptr, &open, NULL);
+                size_t childPrio = 0;
 
-                    depthPtr++;
-                    if (depth == 0) break;
-                }
+                // make child
                 size_t childLen = close - open - 1;
                 char child[childLen + 1];
                 memset(child, '\0', sizeof(child));
