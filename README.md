@@ -14,6 +14,7 @@ POSIX CLI tool that, in real time, take in user input and calculate the formula 
 3. CTRL+X -> Clear buffer
 4. CTRL+W -> Delete word by word
 5. Arrow keys -> Move side to side
+6. CTRL+Arrow keys -> Move word by word
 
 ## Compilation
 All testing is done with the `clang` compiler. Bug reports compiled without clang won't be considered. This also applies to compiling flags.  

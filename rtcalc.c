@@ -530,9 +530,9 @@ int main () {
         }
 
         printf("\e[u\e[J"                  // move the cursor back to the start
-               "\e[A\r\e[2K%s\r\e[B\e[4C"  // move cursor to result, print the message, return back to start
+               "\e[A\r\e[2K%s\r\e[B%s"  // move cursor to result, print the message, return back to start
                "%s%s\e[0m",                // print the buffer
-               result, ret ? "\e[31m" : "", calcBuffer);
+               result, PROMPT, ret ? "\e[31m" : "", calcBuffer);
 
         if (ret == 9) continue;
 
@@ -566,27 +566,47 @@ int main () {
                         break;
                     }
 
-
-                    // ctrl + arrow key
                     case '1': {
-                        c = getchar();
-                        if (c != ';') break;
-                        c = getchar();
-                        if (c != 5) break;
-                        c = getchar();
-
-                        switch (c) {
-                            // WIP
-                            // ctrl + right arrow
-                            case 'C': {
-                                break;
-                            }
-                            // ctrl + left arrow
-                            case 'D': {
-                                break;
-                            }
+                        char seq[8] = {0};
+                        int i = 0;
+                        while ((seq[i] = getchar()) != EOF && i < 7) {
+                            if (seq[i] >= 'A' && seq[i] <= '~') break; // final char
+                            i++;
+                            c = seq[i];
                         }
 
+                        if (!strcmp(seq, ";5D")) {
+                            // control+left, aka move left (word)
+                            uint8_t leftWhite = 0;
+
+                            while (cursorPos > 0) {
+                                // skip trailling whitespace
+                                if (!leftWhite) {
+                                    if (!isspace(calcBuffer[cursorPos - 1])) leftWhite = 1;
+                                } else {
+                                    if (isspace(calcBuffer[cursorPos - 1])) break;
+                                }
+
+                                // move on loop
+                                cursorPos--;
+                            }
+                        } else if (!strcmp(seq, ";5C")) {
+                            // control+right, aka move right (word)
+                            uint8_t rightWhite = 0;
+
+                            if (cursorPos != len) cursorPos += 1;
+                            while (cursorPos <= len) {
+                                // skip trailling whitespace
+                                if (!rightWhite) {
+                                    if (!isspace(calcBuffer[cursorPos])) rightWhite = 1;
+                                } else {
+                                    if (isspace(calcBuffer[cursorPos])) break;
+                                }
+
+                                // move on loop
+                                cursorPos++;
+                            }
+                        }
                         break;
                     }
 
@@ -629,9 +649,11 @@ int main () {
             memset(calcBuffer, '\0', sizeof(calcBuffer));
 
         } else if (c == 0x1) {
+            // ctrl + a, aka move to start
             cursorPos = 0;
 
         } else if (c == 0x5) {
+            // ctrl + e , aka move to end
             cursorPos = len;
 
         } else {
@@ -646,6 +668,5 @@ int main () {
     }
 
     putchar('\n');
-    // set everything back to normal
     return retCode;
 }
