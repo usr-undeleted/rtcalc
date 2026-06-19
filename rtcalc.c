@@ -67,13 +67,13 @@ int validateBuffer(char *buffer, int *highestPrio) {
     ssize_t openParentheses = 0; // find ()
     uint8_t twoNum = 0; // for example, '2   2' is invalid, since no op
     size_t nums = 0, ops = 0;
+    uint8_t mode = 0; // 0 for nums, 1 for ops
 
     while (*ptr) {
-        if (isspace(*ptr)) {
-            ptr++;
-            continue;
-        }
+        skipWhitespace((const char **)&ptr);
+
         /*
+
         // compares nums to ops
         if (ops != (nums - 1) && nums < 0) {
             return 5;
@@ -85,7 +85,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
             strtod(ptr, &ptr);
             nums++;
         }
-        */
+
 
         // is first operand invalid?
         if (ptr == buffer && strchr(OPERATIONS, *ptr)) return 2;
@@ -129,6 +129,59 @@ int validateBuffer(char *buffer, int *highestPrio) {
         }
 
         ptr++;
+        */
+
+        // invalid chars
+        if (!strchr(VALID_LIST, *ptr)) return 1;
+
+        // find unclosed parentheses
+        switch (*ptr) {
+            case '(': {
+                openParentheses++;
+                continue;
+            }
+            case ')': {
+                if (openParentheses) {
+                    openParentheses--;
+                } else {
+                    return 3;
+                }
+                continue;
+            }
+        }
+
+        // trees
+        if (mode) {
+            // numbers
+            nums++;
+            char *prev = ptr;
+            strtod(ptr, &ptr);
+            if (ptr == prev) return 4; // pointer didnt move
+
+        } else {
+            // operators
+            ops++;
+            if (!strchr(OPERATIONS, *ptr)) return 5; // invalid operator
+
+            uint8_t prio = getPriority(*ptr), tru = 0;
+            if (prio > *highestPrio) *highestPrio = prio;
+
+            ptr++;
+
+        }
+
+        // change modes
+        mode = !mode;
+    }
+
+    if (nums > (ops + 1)) {
+        // too manu numbers
+        return 7;
+
+    } else if (ops > (nums - 1)) {
+        // too many operators
+        return 6;
+
     }
 
     if (openParentheses > 0) return 2;
@@ -140,6 +193,10 @@ char *retToStr(char err) {
         case 1: return "Invalid character in formula."; break;
         case 2: return "Not enough closing parentheses."; break;
         case 3: return "Not enough opening parentheses."; break;
+        case 4: return "Invalid operand."; break;
+        case 5: return "Invalid operator."; break;
+        case 6: return "Not enough numbers for calculation"; break;
+        case 7: return "Not enough operators for calculation"; break;
         case 9: return "Input size limit reached - Sorry!"; break;
         default: return "Unknown error num - Sorry! :p"; break;
     }
