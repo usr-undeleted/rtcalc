@@ -67,65 +67,6 @@ int validateBuffer(char *buffer, int *highestPrio) {
     while (*ptr) {
         skipWhitespace((const char **)&ptr);
 
-        /*
-
-        // compares nums to ops
-        if (ops != (nums - 1) && nums < 0) {
-            return 5;
-        }
-
-        // find num
-        if (*ptr == '.' || isdigit(*ptr)) {
-            // skip
-            strtod(ptr, &ptr);
-            nums++;
-        }
-
-
-        // is first operand invalid?
-        if (ptr == buffer && strchr(OPERATIONS, *ptr)) return 2;
-
-        // find unclosed parentheses
-        switch (*ptr) {
-            case '(': {
-                openParentheses++;
-                //ptr++;
-                continue;
-            }
-            case ')': {
-                if (openParentheses) {
-                    openParentheses--;
-                } else {
-                    return 3;
-                }
-                //ptr++;
-                continue;
-            }
-        }
-
-        // look for invalid char
-        if (!strchr(VALID_LIST, *ptr)) return 1;
-
-        // is second operand invalid? + find operator
-        if (strchr(VALID_LIST, *ptr)) {
-            //ops++;
-            uint8_t prio = getPriority(*ptr), tru = 0;
-            if (prio > *highestPrio) *highestPrio = prio;
-
-            while (*ptr) {
-                if (!isdigit(*++ptr)) {
-                    tru = 1;
-                    break;
-                }
-
-            }
-
-            if (!tru && nums != 1) return 3;
-        }
-
-        ptr++;
-        */
-
         // invalid chars
         if (!strchr(VALID_LIST, *ptr)) return 1;
 
@@ -133,6 +74,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
         switch (*ptr) {
             case '(': {
                 openParentheses++;
+                ptr++;
                 continue;
             }
             case ')': {
@@ -141,6 +83,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
                 } else {
                     return 3;
                 }
+                ptr++;
                 continue;
             }
         }
@@ -223,26 +166,6 @@ size_t countTokens(const char *buf) {
         }
 
         count++;
-        /*
-        if (strchr(VALID_NUMS, *p)) {
-            if (*p != '.') {
-                strtod(p, (char**)&p);
-
-            } else {
-                p++;
-            }
-
-            count++;
-
-        } else if (strchr(OPERATIONS, *p)) {
-            p++;
-            count++;
-
-        } else if (*p == '(' || *p == ')') {
-            p++;
-            count++;
-        }
-        */
 
         mode = !mode;
     }
@@ -288,24 +211,6 @@ double calculateBuffer(const char *buf, int highestPrio) {
             j++;
             continue;
         }
-        /*
-
-        // set number
-        tokens[j].type = NUMBER;
-        tokens[j].val = strtod(ptr, &ptr);
-        j++;
-
-        skipWhitespace((const char **)&ptr);
-
-        // break early if there is nothing fowards
-        if (*ptr == '\0') break;
-
-        // set operand
-        tokens[j].type = OPERATOR;
-        tokens[j].op = *ptr;
-        ptr++;
-        j++;
-        */
 
         // trees
         if (!mode) {
