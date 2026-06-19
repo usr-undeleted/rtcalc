@@ -38,7 +38,7 @@ int retCode = 0;
 // x for big, monumental changes
 // y for addition of new features
 // z for fixes
-#define VERSION "release 1.0.0"
+#define VERSION "release 1.1.1"
 
 void handleCtrlC(int sig_num) {
     fprintf(stderr, "\nInterrupted, exiting...\n");
