@@ -50,7 +50,7 @@ void restoreTerminal(void) {
 }
 
 // priority list for operators
-uint8_t getPriority(char operation) {
+uint8_t getPriority(const char operation) {
     switch (operation) {
         case '+': case '-': return 1;
         case '*': case '/': return 2;
@@ -59,9 +59,63 @@ uint8_t getPriority(char operation) {
     return 0;
 }
 
+// loop trough buffer to find highest priority
+int findBufPrio(const char *buf) {
+    int prio  = 0;
+    char *ptr = (char *)buf;
+
+    while (*ptr) {
+        if (!strchr(OPERATIONS, *(ptr++))) continue;
+        int loopPrio = getPriority(*ptr);
+        if (loopPrio > prio) prio = loopPrio;
+    }
+
+    return prio;
+}
+
 void skipWhitespace(const char **pp) {
     while (isspace(**pp)) (*pp)++;
 };
+
+// find matching ']' for '[', and return pointer.
+// if either childBuf or childLine are NULL, skip their definitions.
+// return NULL on malformation
+char *findFuncClose(const char *ptr, char **openOut, int *errCode) {
+    char *open = strchr(ptr, '[');
+    if (!open) {
+        if (errCode != NULL) *errCode = 10;
+        return NULL;
+    }
+    char *close = open;
+
+    // set close, making sure there isnt something bad like [[]
+    size_t depth = 0;
+    char *validateBracket = close;
+    // set final bracket, checking depth and also seeing if its empty
+    while (*validateBracket) {
+        switch (*validateBracket) {
+            case '[': depth++; break;
+            case ']': {
+                close = validateBracket;
+                if (depth > 0) depth--;
+                break;
+            }
+        }
+
+        validateBracket++;
+        if (depth == 0) break;
+    }
+    if (depth || close == open) {
+        if (errCode != NULL) *errCode = 10;
+        return NULL;
+    }
+
+    if (openOut != NULL) {
+        *openOut = open;
+    }
+
+    return close;
+}
 
 // look for invalid characters
 int validateBuffer(char *buffer, int *highestPrio) {
@@ -79,39 +133,29 @@ int validateBuffer(char *buffer, int *highestPrio) {
         // functions
         if (!mode) {
             if (!strncmp(ptr, "sqrt", 4)) {
-                char *open = strchr(ptr, '[');
-                if (!open) return 10;
-                char *close = open;
+                int ret = 0;
+                char *open = ptr;
+                char *close = ptr;
+                if ((close = findFuncClose(ptr, &open, &ret)) == NULL || ret) return ret;
 
-                // set close, making sure there isnt something bad like [[]
-                size_t depth = 0;
-                char *validateBracket = close;
+                // check if we have empty brackets
                 uint8_t isEmpty = 1;
-                // set final bracket, checking depth and also seeing if its empty
-                while (*validateBracket) {
-                    switch (*validateBracket) {
-                        case '[': depth++; break;
-                        case ']': {
-                            close = validateBracket;
-                            if (depth > 0) depth--;
-                            break;
-                        }
-                        default: if (!isspace(*validateBracket)) isEmpty = 0; break;
+                char *val = open + 1;
+                while (val != close) {
+                    if (!*val) break;
+                    if (!isspace(*val)) {
+                        isEmpty = 0;
+                        break;
                     }
-
-                    validateBracket++;
-                    if (depth == 0) break;
+                    val++;
                 }
-                if (depth || close == open) return 10;
                 if (isEmpty) return 11;
 
-                // make child for recursive to validate
+                // make child to be checked
                 size_t childLen = close - open - 1;
                 char child[childLen + 1];
-                memset(child, '\0', sizeof(child));
+                memset(child, '\0', childLen + 1);
                 memcpy(child, open + 1, childLen);
-
-                int ret = 0;
                 if ((ret = validateBuffer(child, NULL))) return ret;
 
                 ptr = close + 1;
