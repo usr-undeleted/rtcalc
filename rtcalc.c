@@ -12,13 +12,16 @@
 enum tokenType {
     SKIP,
     NUMBER,
-    OPERATOR
+    OPERATOR,
+    PARENTHESES
 };
 
 struct calcToken {
     enum tokenType type;
     double val;
     char op;
+    unsigned int depth;
+    char *ptr;
 };
 
 struct termios backup = { 0 };
@@ -59,7 +62,8 @@ void skipWhitespace(const char **pp) {
 // look for invalid characters
 int validateBuffer(char *buffer, int *highestPrio) {
     char *ptr = buffer;
-    ssize_t openParentheses = 0; // find ()
+    ssize_t openParentheses = 0; // find '(' and ')'
+    uint8_t lastWasParen = 0; // reject '()'
     uint8_t twoNum = 0; // for example, '2   2' is invalid, since no op
     size_t nums = 0, ops = 0;
     uint8_t mode = 0; // 0 for nums, 1 for ops
@@ -73,11 +77,17 @@ int validateBuffer(char *buffer, int *highestPrio) {
         // find unclosed parentheses
         switch (*ptr) {
             case '(': {
+                if (lastWasParen) return 8;
+                lastWasParen = 1;
+
                 openParentheses++;
                 ptr++;
                 continue;
             }
             case ')': {
+                if (lastWasParen) return 8;
+                lastWasParen = 1;
+
                 if (openParentheses) {
                     openParentheses--;
                 } else {
@@ -87,6 +97,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
                 continue;
             }
         }
+        lastWasParen = 0;
 
         // trees
         if (!mode) {
@@ -115,11 +126,9 @@ int validateBuffer(char *buffer, int *highestPrio) {
     if (nums > (ops + 1)) {
         // too manu numbers
         return 7;
-
     } else if (ops > (nums - 1)) {
         // too many operators
         return 6;
-
     }
 
     if (openParentheses > 0) return 2;
@@ -135,6 +144,7 @@ char *retToStr(char err) {
         case 5: return "Invalid operator."; break;
         case 6: return "Not enough numbers for calculation"; break;
         case 7: return "Not enough operators for calculation"; break;
+        case 8: return "Empty parentheses."; break;
         case 9: return "Input size limit reached - Sorry!"; break;
         default: return "Unknown error num - Sorry! :p"; break;
     }
@@ -190,7 +200,7 @@ double calculateTrio(double left, char op, double right) {
 }
 
 // orchestrate everything together
-double calculateBuffer(const char *buf, int highestPrio) {
+double calculateBuffer(const char *buf, const int highestPrio) {
     // each token eventually gets reduced to result
     size_t count = countTokens(buf);
     struct calcToken tokens[count];
@@ -200,13 +210,20 @@ double calculateBuffer(const char *buf, int highestPrio) {
     char *ptr = (char *)buf;
     int j = 0; // what token we are in
     uint8_t mode = 0;
+    unsigned int parenLevel = 0;
 
     while (*ptr) {
         skipWhitespace((const char **)&ptr);
 
         // parentheses
         if (*ptr == '(' || *ptr == ')') {
-            tokens[j].type = SKIP;
+            tokens[j].type = PARENTHESES;
+            tokens[j].ptr = ptr;
+            switch (*ptr) {
+                case '(': tokens[j].depth = ++parenLevel; break;
+                case ')': tokens[j].depth = parenLevel--; break;
+            }
+
             ptr++;
             j++;
             continue;
@@ -231,6 +248,46 @@ double calculateBuffer(const char *buf, int highestPrio) {
         if (*ptr == '\0') break;
 
         mode = !mode;
+    }
+
+    // compression loop to complete parentheses
+    for (int i = 0; i < count; i++) {
+        // get values inside a () trough recursive function calls
+        if (tokens[i].type == PARENTHESES && *(tokens[i].ptr) == '(') {
+            // compress [(][1][+][1][)] to [2][SKIP][SKIP][SKIP][SKIP] (finding the center would be too hard)
+            char *start = tokens[i].ptr + 1;
+            unsigned int sDepth = tokens[i].depth;
+            char *end = start;
+            int childPrio = 0;
+            int endIdx = 0; // becomes l
+
+            for (int l = i + 1; l < count; l++) {
+                int foundPrio = getPriority(tokens[l].op);
+                if (foundPrio > childPrio) childPrio = foundPrio;
+
+                if (tokens[l].depth == sDepth) {
+                    end = tokens[l].ptr - 1;
+                    endIdx = l;
+                    break;
+                }
+            }
+
+            // the buffer passed on
+            size_t childLen = end - start + 1;
+            char child[childLen + 1];
+            memset(child, '\0', sizeof(child));
+            memcpy(child, start, childLen);
+
+            // get final
+            tokens[i].type = NUMBER;
+            tokens[i].val = calculateBuffer(child, childPrio);
+            // set skips
+            for (int l = i + 1; l <= endIdx; l++) {
+                tokens[l].type = SKIP;
+            }
+
+            continue;
+        }
     }
 
     // repeat parse loop, looking for highest prio
