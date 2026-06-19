@@ -34,6 +34,11 @@ int retCode = 0;
 #define WELCOME "Welcome to rtcalc!\n"
 #define VALID_LIST "0123456789+-*/().^ "
 #define OPERATIONS "+-*/^"
+// x.y.z
+// x for big, monumental changes
+// y for addition of new features
+// z for fixes
+#define VERSION "release 1.0.0"
 
 void handleCtrlC(int sig_num) {
     fprintf(stderr, "\nInterrupted, exiting...\n");
@@ -43,7 +48,6 @@ void handleCtrlC(int sig_num) {
 void restoreTerminal(void) {
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &backup);
 }
-
 
 // priority list for operators
 uint8_t getPriority(char operation) {
@@ -70,6 +74,52 @@ int validateBuffer(char *buffer, int *highestPrio) {
 
     while (*ptr) {
         skipWhitespace((const char **)&ptr);
+        if (*ptr == '\0') break;
+
+        // functions
+        if (!mode) {
+            if (!strncmp(ptr, "sqrt", 4)) {
+                char *open = strchr(ptr, '[');
+                if (!open) return 10;
+                char *close = open;
+
+                // set close, making sure there isnt something bad like [[]
+                size_t depth = 0;
+                char *validateBracket = close;
+                uint8_t isEmpty = 1;
+                // set final bracket, checking depth and also seeing if its empty
+                while (*validateBracket) {
+                    switch (*validateBracket) {
+                        case '[': depth++; break;
+                        case ']': {
+                            close = validateBracket;
+                            if (depth > 0) depth--;
+                            break;
+                        }
+                        default: if (!isspace(*validateBracket)) isEmpty = 0; break;
+                    }
+
+                    validateBracket++;
+                    if (depth == 0) break;
+                }
+                if (depth || close == open) return 10;
+                if (isEmpty) return 11;
+
+                // make child for recursive to validate
+                size_t childLen = close - open - 1;
+                char child[childLen + 1];
+                memset(child, '\0', sizeof(child));
+                memcpy(child, open + 1, childLen);
+
+                int ret = 0;
+                if ((ret = validateBuffer(child, NULL))) return ret;
+
+                ptr = close + 1;
+                nums++;
+                mode = !mode;
+                continue;
+            }
+        }
 
         // invalid chars
         if (!strchr(VALID_LIST, *ptr)) return 1;
@@ -111,8 +161,10 @@ int validateBuffer(char *buffer, int *highestPrio) {
             ops++;
             if (!strchr(OPERATIONS, *ptr)) return 5; // invalid operator
 
-            uint8_t prio = getPriority(*ptr), tru = 0;
-            if (prio > *highestPrio) *highestPrio = prio;
+            if (highestPrio != NULL) {
+                uint8_t prio = getPriority(*ptr), tru = 0;
+                if (prio > *highestPrio) *highestPrio = prio;
+            }
 
             ptr++;
 
@@ -136,15 +188,17 @@ int validateBuffer(char *buffer, int *highestPrio) {
 // used by func above
 char *retToStr(char err) {
     switch (err) {
-        case 1: return "Invalid character in formula."; break;
-        case 2: return "Not enough closing parentheses."; break;
-        case 3: return "Not enough opening parentheses."; break;
-        case 4: return "Invalid operand."; break;
-        case 5: return "Invalid operator."; break;
-        case 6: return "Not enough numbers for calculation"; break;
-        case 7: return "Not enough operators for calculation"; break;
-        case 8: return "Empty parentheses."; break;
-        case 9: return "Input size limit reached - Sorry!"; break;
+        case  1: return "Invalid character in formula."; break;
+        case  2: return "Not enough closing parentheses."; break;
+        case  3: return "Not enough opening parentheses."; break;
+        case  4: return "Invalid operand."; break;
+        case  5: return "Invalid operator."; break;
+        case  6: return "Not enough numbers for calculation"; break;
+        case  7: return "Not enough operators for calculation"; break;
+        case  8: return "Empty parentheses."; break;
+        case  9: return "Input size limit reached - Sorry!"; break;
+        case 10: return "A function has invalid brackets."; break;
+        case 11: return "A function has no contents."; break;
         default: return "Unknown error num - Sorry! :p"; break;
     }
 }
@@ -159,23 +213,51 @@ size_t countTokens(const char *buf) {
     while (*ptr) {
         skipWhitespace((const char **)&ptr);
 
+        // functions
+        if (!mode) {
+            if (!strncmp(ptr, "sqrt", 4)) {
+                char *close = strchr(ptr, '[');
+                char *depthPtr = close;
+                size_t depth = 0;
+                // find final bracket
+                while (*depthPtr) {
+                    switch (*depthPtr) {
+                        case '[': depth++; break;
+                        case ']': {
+                            close = depthPtr;
+                            if (depth > 0) depth--;
+                            break;
+                        }
+                    }
+
+                    depthPtr++;
+                    if (depth == 0) break;
+                }
+
+                ptr = close + 1; // move pointer to after everything
+                count++;
+                mode = !mode;
+                continue;
+            }
+        }
+
+        // parentheses
         if (*ptr == '(' || *ptr == ')') {
             ptr++;
             count++;
             continue;
         }
 
+        // switch type
         if (!mode) {
             // numbers
             strtod(ptr, &ptr); // moves pointer
-
         } else {
             // operators
             ptr++;
         }
 
         count++;
-
         mode = !mode;
     }
 
@@ -191,7 +273,6 @@ double calculateTrio(double left, char op, double right) {
         case '/': result = left / right; break;
         case '*': result = left * right; break;
         case '^': result = pow(left, right); break;
-
         default: break;
     }
 
@@ -210,9 +291,51 @@ double calculateBuffer(const char *buf, const int highestPrio) {
     int j = 0; // what token we are in
     uint8_t mode = 0;
     unsigned int parenLevel = 0;
-
     while (*ptr) {
         skipWhitespace((const char **)&ptr);
+
+        // functions
+        if (!mode) {
+            if (!strncmp(ptr, "sqrt", 4)) {
+                // form child
+                char *open  = strchr(ptr, '[');
+                char *close = open;
+                char *depthPtr = open;
+                size_t depth = 0;
+                int childPrio = 0;
+                // find final bracket
+                while (*depthPtr) {
+                    switch (*depthPtr) {
+                        case '[': depth++; break;
+                        case ']': {
+                            close = depthPtr;
+                            if (depth > 0) depth--;
+                            break;
+                        }
+                    }
+
+                    depthPtr++;
+                    if (depth == 0) break;
+                }
+                size_t childLen = close - open - 1;
+                char child[childLen + 1];
+                memset(child, '\0', sizeof(child));
+                memcpy(child, open + 1, childLen);
+                // get child highest prio
+                for (int i = 0; i < childLen; i++) {
+                    if (!strchr(OPERATIONS, child[i])) continue;
+                    int loopPrio = getPriority(child[i]);
+                    if (loopPrio > childPrio) childPrio = loopPrio;
+                }
+
+                tokens[j].type = NUMBER;
+                tokens[j].val  = sqrt(calculateBuffer(child, childPrio));
+                ptr = close + 1;
+                j++;
+                mode = !mode;
+                continue;
+            }
+        }
 
         // parentheses
         if (*ptr == '(' || *ptr == ')') {
@@ -232,13 +355,13 @@ double calculateBuffer(const char *buf, const int highestPrio) {
         if (!mode) {
             // numbers
             tokens[j].type = NUMBER;
-            tokens[j].val = strtod(ptr, &ptr);
+            tokens[j].val  = strtod(ptr, &ptr);
             j++;
 
         } else {
             // operators
             tokens[j].type = OPERATOR;
-            tokens[j].op = *ptr;
+            tokens[j].op   = *ptr;
             ptr++;
             j++;
         }
