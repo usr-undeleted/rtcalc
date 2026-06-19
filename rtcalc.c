@@ -73,7 +73,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
             ptr++;
             continue;
         }
-
+        /*
         // compares nums to ops
         if (ops != (nums - 1) && nums < 0) {
             return 5;
@@ -85,6 +85,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
             strtod(ptr, &ptr);
             nums++;
         }
+        */
 
         // is first operand invalid?
         if (ptr == buffer && strchr(OPERATIONS, *ptr)) return 2;
@@ -93,7 +94,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
         switch (*ptr) {
             case '(': {
                 openParentheses++;
-                ptr++;
+                //ptr++;
                 continue;
             }
             case ')': {
@@ -102,7 +103,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
                 } else {
                     return 3;
                 }
-                ptr++;
+                //ptr++;
                 continue;
             }
         }
@@ -112,7 +113,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
 
         // is second operand invalid? + find operator
         if (strchr(VALID_LIST, *ptr)) {
-            ops++;
+            //ops++;
             uint8_t prio = getPriority(*ptr), tru = 0;
             if (prio > *highestPrio) *highestPrio = prio;
 
@@ -279,21 +280,6 @@ double calculateBuffer(const char *buf, int highestPrio) {
     return 0;
 }
 
-// return offset of how much we moved to the left
-size_t cursorToLeftWhitespace(const char *buf, size_t offset) {
-    size_t ret = 0;
-    char *ptr = (char *)buf + offset;
-    ptr--;
-
-    while (!isspace(*ptr)) {
-        ptr--;
-        ret++;
-        if (ptr == buf) break;
-    }
-
-    return ret;
-}
-
 int main () {
     // handle signal
     signal(SIGINT, handleCtrlC);
@@ -394,13 +380,13 @@ int main () {
                         c = getchar();
 
                         switch (c) {
+                            // WIP
                             // ctrl + right arrow
                             case 'C': {
                                 break;
                             }
                             // ctrl + left arrow
                             case 'D': {
-                                cursorToLeftWhitespace(calcBuffer, len - cursorPos);
                                 break;
                             }
                         }
