@@ -129,6 +129,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
     while (*ptr) {
         skipWhitespace((const char **)&ptr);
         if (*ptr == '\0') break;
+        lastWasParen = 0;
 
         // functions
         if (!mode) {
@@ -190,7 +191,6 @@ int validateBuffer(char *buffer, int *highestPrio) {
                 continue;
             }
         }
-        lastWasParen = 0;
 
         // trees
         if (!mode) {

@@ -24,9 +24,10 @@
 - Whenever you're going to check the code file, you will apply the following algorithm. In your context, you will store the output of `stat -c %Y` for every file in the project (do this in the start of a session). Everytime you need to re-check the file's contents, or when the user asks about the file, you will run the command again on the file, and compare the output to what is in your context. If the values match, don't update context, but if the values don't match, you will update context for the file. Situations where you need to check with the command, for example, are when the user asks about a specific part of the code, or when you're studying the project. Note that the only exceptions for value storage are files such as binaries, as they aren't supposed to be checked.
 
 ## Current implementations (list might be outdated)
-- Basic actions like x+y*z.
-- Addition (+), subtraction (-), multiplication (*), division (/) and powers (^).
+- Basic actions like `x+(y*z)`.
+- Addition (+), subtraction (-), multiplication (*), division (/), powers (^) and square roots (sqrt[x]).
 - Arrow keys to navigate input.
 - CTRL+A to moving to start of input, and CTRL+E to move to end of input.
 - CTRL+X to clear all input.
+- CTRL+W to delete word.
 - Basic error handling + buffer validation before calculation.
