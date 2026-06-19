@@ -1,3 +1,4 @@
+#include <asm-generic/errno-base.h>
 #include <ctype.h>
 #include <signal.h>
 #include <stdint.h>
@@ -26,8 +27,8 @@ struct calcToken {
 
 struct termios backup = { 0 };
 int retCode = 0;
-#define BUFFER_SIZE 4097 // 4096 is the actual limit
-#define RESULT_SIZE 1024
+#define BUFFER_SIZE 4097UL // 4096 is the actual limit
+#define RESULT_SIZE 2049UL
 #define USER_MISTAKE 2
 #define CODE_MISTAKE 1
 #define PROMPT ">>> "
@@ -39,6 +40,40 @@ int retCode = 0;
 // y for addition of new features
 // z for fixes
 #define VERSION "release 1.1.1"
+
+void helpMenu(char *error, int ret) {
+    printf("\e[1mReal-time calculation tool (rtcalc)\e[0m\n"
+
+        "\e[3mLegal and basic info:\e[0m\n"
+        "- Licensed under the GNU GPL-3.0 license. Open-source, and free, forever.\n"
+        "- Source code hosted under Github (https://github.com/usr-undeleted/rtcalc).\n"
+        "- Current version: \e[1m%s\e[0m\n"
+        "- Made with love, by Undeleted. <3\n"
+        "\n"
+
+        "\e[3mUsage:\e[0m\n"
+        "- This tool, of course, follows basic math principles.\n"
+        "\e[1mBasic examples:\e[0m\n"
+        "\e[4m10 + 2 * 3\e[0m\n"
+        "\e[4m2 ^ (10 * (40 / 2))\e[0m\n\n"
+        "- This tool also presents math functions, those being (with an example each):\n"
+        "\e[1mSquare root:\e[0m\n"
+        "\e[4msqrt[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
+        "\n"
+
+        "\e[3mDetails:\e[0m\n"
+        "- Invalid input will lead to an error, preventing calculation.\n"
+        "- Input is limited to %zu characters.\n"
+        "- Result size is limited to %zu characters.\n"
+        "\n"
+
+        "\e[3mAdditional arguments:\e[0m\n"
+        "- \e[1m\"help\"\e[0m: Show this menu.\n"
+        "%s"
+        ,
+        VERSION, BUFFER_SIZE - 1, RESULT_SIZE - 1, error != NULL ? error : "");
+    exit(ret);
+}
 
 void handleCtrlC(int sig_num) {
     fprintf(stderr, "\nInterrupted, exiting...\n");
@@ -243,6 +278,7 @@ char *retToStr(char err) {
         case  9: return "Input size limit reached - Sorry!"; break;
         case 10: return "A function has invalid brackets."; break;
         case 11: return "A function has no contents."; break;
+        case 12: return "Result display size limit reached - Sorry!"; break;
         default: return "Unknown error num - Sorry! :p"; break;
     }
 }
@@ -476,7 +512,19 @@ double calculateBuffer(const char *buf, const int highestPrio) {
     return 0;
 }
 
-int main () {
+int main (int argc, char *argv[]) {
+    if (argc > 1) {
+        // loop trough stuffies and match argument
+        for (int i = 1; i < argc; i++) {
+            if (!strcmp(argv[i], "help")) {
+                helpMenu(NULL, 0);
+            } else {
+                helpMenu("Error: improper flag used.\n", USER_MISTAKE);
+
+            }
+        }
+    }
+
     // handle signal
     signal(SIGINT, handleCtrlC);
 
@@ -502,11 +550,12 @@ int main () {
     // show prompt + save cursor pos
     printf("\n%s\e[s", PROMPT);
     char result[RESULT_SIZE] = { 0 };
+    size_t resSize = 0;
 
     while(1) {
         int highestPrio = 0;
         uint8_t ret = validateBuffer(calcBuffer, &highestPrio); // find errors
-        if (cursorPos == 4096) ret = 9; // input size limit
+        if (cursorPos >= 4096) ret = 9; // input size limit
 
         // define result
         if (!ret) {
@@ -517,6 +566,8 @@ int main () {
             } else {
 
                 double calc = calculateBuffer(calcBuffer, highestPrio);
+                if ((resSize = snprintf(NULL, 0, "%lf", calc)) >= 2048) ret = 12;
+
                 if (ret) {
                     snprintf(result, sizeof(result), "Can't calculate: %s", retToStr(ret));
 
