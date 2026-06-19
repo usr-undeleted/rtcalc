@@ -86,7 +86,6 @@ int validateBuffer(char *buffer, int *highestPrio) {
             }
             case ')': {
                 if (lastWasParen) return 8;
-                lastWasParen = 1;
 
                 if (openParentheses) {
                     openParentheses--;
