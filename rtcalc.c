@@ -169,6 +169,40 @@ int validateBuffer(char *buffer, int *highestPrio) {
         // functions
         if (!mode) {
             if (!strncmp(ptr, "sqrt", 4)) {
+                // square root
+                int ret = 0;
+                char *open = ptr;
+                char *close = ptr;
+                if ((close = findFuncClose(ptr, &open, &ret)) == NULL || ret) return ret;
+
+                // check if we have empty brackets
+                uint8_t isEmpty = 1;
+                char *val = open + 1;
+                while (val != close) {
+                    if (!*val) break;
+                    if (!isspace(*val)) {
+                        isEmpty = 0;
+                        break;
+                    }
+                    val++;
+                }
+                if (isEmpty) return 11;
+
+                // make child to be checked
+                size_t childLen = close - open - 1;
+                char child[childLen + 1];
+                memset(child, '\0', childLen + 1);
+                memcpy(child, open + 1, childLen);
+                if ((ret = validateBuffer(child, NULL))) return ret;
+
+                ptr = close + 1;
+                nums++;
+                mode = !mode;
+                continue;
+
+            } else if (!strncmp(ptr, "cbrt", 4)) {
+                // cube root
+
                 int ret = 0;
                 char *open = ptr;
                 char *close = ptr;
@@ -303,6 +337,14 @@ size_t countTokens(const char *buf) {
                 count++;
                 mode = !mode;
                 continue;
+            } else if (!strncmp(ptr, "cbrt", 4)) {
+                char *open = ptr;
+                char *close = findFuncClose(ptr, &open, NULL);
+
+                ptr = close + 1;
+                count++;
+                mode = !mode;
+                continue;
             }
         }
 
@@ -380,6 +422,29 @@ double calculateBuffer(const char *buf, const int highestPrio) {
 
                 tokens[j].type = NUMBER;
                 tokens[j].val  = sqrt(calculateBuffer(child, childPrio));
+                ptr = close + 1;
+                j++;
+                mode = !mode;
+                continue;
+            } else if (!strncmp(ptr, "cbrt", 4)) {
+                char *open = ptr;
+                char *close = findFuncClose(ptr, &open, NULL);
+                size_t childPrio = 0;
+
+                // make child
+                size_t childLen = close - open - 1;
+                char child[childLen + 1];
+                memset(child, '\0', sizeof(child));
+                memcpy(child, open + 1, childLen);
+                // get child highest prio
+                for (int i = 0; i < childLen; i++) {
+                    if (!strchr(OPERATIONS, child[i])) continue;
+                    int loopPrio = getPriority(child[i]);
+                    if (loopPrio > childPrio) childPrio = loopPrio;
+                }
+
+                tokens[j].type = NUMBER;
+                tokens[j].val  = cbrt(calculateBuffer(child, childPrio));
                 ptr = close + 1;
                 j++;
                 mode = !mode;
