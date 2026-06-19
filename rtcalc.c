@@ -59,6 +59,8 @@ void helpMenu(char *error, int ret) {
         "- This tool also presents math functions, those being (with an example each):\n"
         "\e[1mSquare root:\e[0m\n"
         "\e[4msqrt[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
+        "\e[1mCube root:\e[0m\n"
+        "\e[4mcbrt[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
         "\n"
 
         "\e[3mDetails:\e[0m\n"
