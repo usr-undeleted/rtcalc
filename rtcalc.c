@@ -151,7 +151,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
         }
 
         // trees
-        if (mode) {
+        if (!mode) {
             // numbers
             nums++;
             char *prev = ptr;
@@ -206,10 +206,29 @@ char *retToStr(char err) {
 // correct mem allocate size
 size_t countTokens(const char *buf) {
     int count = 0;
-    const char *p = buf;
-    while (*p) {
-        skipWhitespace(&p);
+    char *ptr = (char *)buf;
+    uint8_t mode = 0; // same mode logic as validator
 
+    while (*ptr) {
+        skipWhitespace((const char **)&ptr);
+
+        if (*ptr == '(' || *ptr == ')') {
+            ptr++;
+            count++;
+            continue;
+        }
+
+        if (!mode) {
+            // numbers
+            strtod(ptr, &ptr); // moves pointer
+
+        } else {
+            // operators
+            ptr++;
+        }
+
+        count++;
+        /*
         if (strchr(VALID_NUMS, *p)) {
             if (*p != '.') {
                 strtod(p, (char**)&p);
@@ -228,6 +247,9 @@ size_t countTokens(const char *buf) {
             p++;
             count++;
         }
+        */
+
+        mode = !mode;
     }
 
     return count;
