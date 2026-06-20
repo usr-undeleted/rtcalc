@@ -487,7 +487,6 @@ int main (int argc, char *argv[]) {
 
             } else {
                 helpMenu("\n\e[31mError: Improper flag used.\e[0m\n", USER_MISTAKE);
-
             }
         }
     }
