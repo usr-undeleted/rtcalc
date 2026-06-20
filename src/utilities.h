@@ -25,6 +25,7 @@ static inline void helpMenu(char *error, int ret) {
         "- Source code hosted under Github (https://github.com/usr-undeleted/rtcalc).\n"
         "- Current version: \e[1m%s\e[0m\n"
         "- Made with love, by Undeleted. <3\n"
+        "- Functions, operators and basic syntax can be found in this program's manual.\n"
         "\n"
 
         "\e[3mUsage:\e[0m\n"
@@ -32,53 +33,6 @@ static inline void helpMenu(char *error, int ret) {
         "\e[1mBasic examples:\e[0m\n"
         "\e[4m10 + 2 * 3\e[0m\n"
         "\e[4m2 ^ (10 * (40 / 2))\e[0m\n\n"
-
-        "- Basic operators are:\n"
-        "\e[1mAddition\e[0m (+)\n"
-        "\e[1mSubtraction\e[0m (-)\n"
-        "\e[1mMultiplication\e[0m (*)\n"
-        "\e[1mDivision\e[0m (/)\n"
-        "\e[1mExponents\e[0m (^)\n"
-        "\e[1mRemainder of division\e[0m (%%)\n"
-        "\n"
-
-        "- This tool also presents math functions, those being:\n"
-        "\e[1mSquare root:\e[0m\n"
-        "- \e[4msqrt[x]\e[0m, results in the square root of \e[1m'x'.\e[0m\n"
-
-        "\e[1mCube root:\e[0m\n"
-        "- \e[4mcbrt[x]\e[0m, results in the cube root of \e[1m'x'.\e[0m\n"
-
-        "\e[1mSine:\e[0m\n"
-        "- \e[4msin[x]\e[0m, results in the sine of \e[1m'x'.\e[0m\n"
-
-        "\e[1mCosine:\e[0m\n"
-        "- \e[4mcos[x]\e[0m, results in the cosine of \e[1m'x'.\e[0m\n"
-
-        "\e[1mTangent:\e[0m\n"
-        "- \e[4mtan[x]\e[0m, results in the tangent of \e[1m'x'.\e[0m\n"
-
-        "\e[1mNatural logarithm:\e[0m\n"
-        "- \e[4mlog[x]\e[0m, results in the natural logarithm of \e[1m'x'.\e[0m\n"
-
-        "\e[1mHyperbolic sine:\e[0m\n"
-        "- \e[4msinh[x]\e[0m, results in the hyperbolic sine of \e[1m'x'.\e[0m\n"
-
-        "\e[1mHyperbolic cosine:\e[0m\n"
-        "- \e[4mcohs[x]\e[0m, results in the hyperbolic cosine of \e[1m'x'.\e[0m\n"
-
-        "\e[1mHyperbolic tangent:\e[0m\n"
-        "- \e[4mtanh[x]\e[0m, results in the hyperbolic tangent of \e[1m'x'.\e[0m\n"
-
-        "\e[1mFloor:\e[0m\n"
-        "- \e[4msin[x]\e[0m, results in the floor of \e[1m'x'.\e[0m\n"
-
-        "\e[1mCeiling:\e[0m\n"
-        "- \e[4mceil[x]\e[0m, results in the ceiling of \e[1m'x'.\e[0m\n"
-
-        "\e[1mGamma:\e[0m\n"
-        "- \e[4mgamma[x]\e[0m, results in the gamma of \e[1m'x'.\e[0m\n"
-        "\n" // end of function list
 
         "\e[3mDetails:\e[0m\n"
         "- Invalid input will lead to an error, preventing calculation.\n"
