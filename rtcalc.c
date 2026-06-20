@@ -39,7 +39,7 @@ int retCode = 0;
 // x for big, monumental changes
 // y for addition of new features
 // z for fixes
-#define VERSION "release 1.1.1"
+#define VERSION "release 1.3.1"
 
 void helpMenu(char *error, int ret) {
     printf("\e[1mReal-time calculation tool (rtcalc)\e[0m\n"
@@ -58,15 +58,17 @@ void helpMenu(char *error, int ret) {
         "\e[4m2 ^ (10 * (40 / 2))\e[0m\n\n"
         "- This tool also presents math functions, those being (with an example each):\n"
         "\e[1mSquare root:\e[0m\n"
-        "\e[4msqrt[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
+        "\e[4msqrt[x]\e[0m, results in the square root of \e[1m'x'.\e[0m\n"
         "\e[1mCube root:\e[0m\n"
-        "\e[4mcbrt[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
+        "\e[4mcbrt[x]\e[0m, results in the cube root of \e[1m'x'.\e[0m\n"
         "\e[1mSine:\e[0m\n"
-        "\e[4msin[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
+        "\e[4msin[x]\e[0m, results in the sine of \e[1m'x'.\e[0m\n"
         "\e[1mCosine:\e[0m\n"
-        "\e[4mcos[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
+        "\e[4mcos[x]\e[0m, results in the cosine of \e[1m'x'.\e[0m\n"
         "\e[1mTangent:\e[0m\n"
-        "\e[4mtan[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
+        "\e[4mtan[x]\e[0m, results in the tangent of \e[1m'x'.\e[0m\n"
+        "\e[1mNatural logarithm:\e[0m\n"
+        "\e[4mlog[x]\e[0m, results in the natural logarithm of \e[1m'x'.\e[0m\n"
         "\n"
 
         "\e[3mDetails:\e[0m\n"
@@ -165,7 +167,8 @@ enum funcIndex {
     CUBE_ROOT,
     SINE,
     COSINE,
-    TANGENT
+    TANGENT,
+    N_LOG
 };
 
 // find proper func, return -1 on fail
@@ -175,6 +178,7 @@ int getFuncIndex(const char *ptr) {
     if (!strncmp(ptr, "sin",  3)) return SINE;
     if (!strncmp(ptr, "cos",  3)) return COSINE;
     if (!strncmp(ptr, "tan",  3)) return TANGENT;
+    if (!strncmp(ptr, "log",  3)) return N_LOG;
     return -1;
 }
 
@@ -413,6 +417,7 @@ double calculateBuffer(const char *buf, const int highestPrio) {
                     case SINE:        tokens[j].val = sin (calculateBuffer(child, childPrio)); break;
                     case COSINE:      tokens[j].val = cos (calculateBuffer(child, childPrio)); break;
                     case TANGENT:     tokens[j].val = tan (calculateBuffer(child, childPrio)); break;
+                    case N_LOG:       tokens[j].val = log (calculateBuffer(child, childPrio)); break;
                 }
                 ptr = close + 1;
                 j++;
