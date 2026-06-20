@@ -39,7 +39,7 @@ char *prompt = ">>> ";
 // x for big, monumental changes
 // y for addition of new features
 // z for fixes
-#define VERSION "release 1.3.1"
+#define VERSION "release 1.5.1"
 
 void helpMenu(char *error, int ret) {
     printf("\e[1mReal-time calculation tool (rtcalc)\e[0m\n"
