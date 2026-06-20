@@ -6,15 +6,16 @@ A manual is provided under docs/ in both manpage and markdown formats.
 
 ## Compilation
 All testing is done with the `clang` compiler. Bug reports compiled without clang won't be considered. This also applies to compiling flags.  
-To first compile the program, run:
 ```
-clang -o rtcalc rtcalc.c -lm -std=gnu99
+make
 ```
 To finally run the program, run:
 ```
 ./rtcalc
 ```
 Compiling notes:  
+- For compile flags, the makefile uses "`COMPILE_FLAGS`". Define it when calling make to enable specific flags.
+- For output path, which is, by default, `bin/` on the source dir, the makefile uses "`OUTPUT_PATH`". Define it to specify where the output will be. Note that this doesn't include the binary name.
 - Defining "`USE_LONG_DOUBLE`" increases precision by switching from a regular `double` floating point to a `long double` floating point, going from 64 bits to 128 bits. Note that switching might carry no difference, as implementation may vary from architecture to architecture.
 
 ## Plans

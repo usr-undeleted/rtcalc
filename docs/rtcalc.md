@@ -1,4 +1,4 @@
-% rtcalc(1) rtcalc 1.13.4
+% rtcalc(1) rtcalc 1.14.4
 % undeleted
 % June 2026
 
