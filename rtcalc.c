@@ -61,6 +61,12 @@ void helpMenu(char *error, int ret) {
         "\e[4msqrt[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
         "\e[1mCube root:\e[0m\n"
         "\e[4mcbrt[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
+        "\e[1mSine:\e[0m\n"
+        "\e[4msin[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
+        "\e[1mCosine:\e[0m\n"
+        "\e[4mcos[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
+        "\e[1mTangent:\e[0m\n"
+        "\e[4mtan[x]\e[0m, where \e[1m'x'\e[0m is any number or equation.\n"
         "\n"
 
         "\e[3mDetails:\e[0m\n"
@@ -154,6 +160,24 @@ char *findFuncClose(const char *ptr, char **openOut, int *errCode) {
     return close;
 }
 
+enum funcIndex {
+    SQUARE_ROOT,
+    CUBE_ROOT,
+    SINE,
+    COSINE,
+    TANGENT
+};
+
+// find proper func, return -1 on fail
+int getFuncIndex(const char *ptr) {
+    if (!strncmp(ptr, "sqrt", 4)) return SQUARE_ROOT;
+    if (!strncmp(ptr, "cbrt", 4)) return CUBE_ROOT;
+    if (!strncmp(ptr, "sin",  3)) return SINE;
+    if (!strncmp(ptr, "cos",  3)) return COSINE;
+    if (!strncmp(ptr, "tan",  3)) return TANGENT;
+    return -1;
+}
+
 // look for invalid characters
 int validateBuffer(char *buffer, int *highestPrio) {
     char *ptr = buffer;
@@ -170,7 +194,7 @@ int validateBuffer(char *buffer, int *highestPrio) {
 
         // functions
         if (!mode) {
-            if (!strncmp(ptr, "sqrt", 4)) {
+            if (getFuncIndex(ptr) != -1) {
                 // square root
                 int ret = 0;
                 char *open = ptr;
@@ -202,38 +226,6 @@ int validateBuffer(char *buffer, int *highestPrio) {
                 mode = !mode;
                 continue;
 
-            } else if (!strncmp(ptr, "cbrt", 4)) {
-                // cube root
-
-                int ret = 0;
-                char *open = ptr;
-                char *close = ptr;
-                if ((close = findFuncClose(ptr, &open, &ret)) == NULL || ret) return ret;
-
-                // check if we have empty brackets
-                uint8_t isEmpty = 1;
-                char *val = open + 1;
-                while (val != close) {
-                    if (!*val) break;
-                    if (!isspace(*val)) {
-                        isEmpty = 0;
-                        break;
-                    }
-                    val++;
-                }
-                if (isEmpty) return 11;
-
-                // make child to be checked
-                size_t childLen = close - open - 1;
-                char child[childLen + 1];
-                memset(child, '\0', childLen + 1);
-                memcpy(child, open + 1, childLen);
-                if ((ret = validateBuffer(child, NULL))) return ret;
-
-                ptr = close + 1;
-                nums++;
-                mode = !mode;
-                continue;
             }
         }
 
@@ -331,15 +323,7 @@ size_t countTokens(const char *buf) {
 
         // functions
         if (!mode) {
-            if (!strncmp(ptr, "sqrt", 4)) {
-                char *open = ptr;
-                char *close = findFuncClose(ptr, &open, NULL);
-
-                ptr = close + 1;
-                count++;
-                mode = !mode;
-                continue;
-            } else if (!strncmp(ptr, "cbrt", 4)) {
+            if (getFuncIndex(ptr) != -1) {
                 char *open = ptr;
                 char *close = findFuncClose(ptr, &open, NULL);
 
@@ -405,7 +389,7 @@ double calculateBuffer(const char *buf, const int highestPrio) {
 
         // functions
         if (!mode) {
-            if (!strncmp(ptr, "sqrt", 4)) {
+            if (getFuncIndex(ptr) != -1) {
                 char *open = ptr;
                 char *close = findFuncClose(ptr, &open, NULL);
                 size_t childPrio = 0;
@@ -423,34 +407,18 @@ double calculateBuffer(const char *buf, const int highestPrio) {
                 }
 
                 tokens[j].type = NUMBER;
-                tokens[j].val  = sqrt(calculateBuffer(child, childPrio));
-                ptr = close + 1;
-                j++;
-                mode = !mode;
-                continue;
-            } else if (!strncmp(ptr, "cbrt", 4)) {
-                char *open = ptr;
-                char *close = findFuncClose(ptr, &open, NULL);
-                size_t childPrio = 0;
-
-                // make child
-                size_t childLen = close - open - 1;
-                char child[childLen + 1];
-                memset(child, '\0', sizeof(child));
-                memcpy(child, open + 1, childLen);
-                // get child highest prio
-                for (int i = 0; i < childLen; i++) {
-                    if (!strchr(OPERATIONS, child[i])) continue;
-                    int loopPrio = getPriority(child[i]);
-                    if (loopPrio > childPrio) childPrio = loopPrio;
+                switch (getFuncIndex(ptr)) {
+                    case SQUARE_ROOT: tokens[j].val = sqrt(calculateBuffer(child, childPrio)); break;
+                    case CUBE_ROOT:   tokens[j].val = cbrt(calculateBuffer(child, childPrio)); break;
+                    case SINE:        tokens[j].val = sin (calculateBuffer(child, childPrio)); break;
+                    case COSINE:      tokens[j].val = cos (calculateBuffer(child, childPrio)); break;
+                    case TANGENT:     tokens[j].val = tan (calculateBuffer(child, childPrio)); break;
                 }
-
-                tokens[j].type = NUMBER;
-                tokens[j].val  = cbrt(calculateBuffer(child, childPrio));
                 ptr = close + 1;
                 j++;
                 mode = !mode;
                 continue;
+
             }
         }
 
