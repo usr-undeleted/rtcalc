@@ -226,6 +226,7 @@ static inline double calculateBuffer(const char *buf, const int highestPrio) {
                     case TANGENT_H:   tokens[j].val = tanh (calculateBuffer(child, childPrio)); break;
                     case FLOOR:       tokens[j].val = floor(calculateBuffer(child, childPrio)); break;
                     case CEILING:     tokens[j].val = ceil (calculateBuffer(child, childPrio)); break;
+                    case GAMMA:       tokens[j].val = gamma(calculateBuffer(child, childPrio)); break;
                 }
                 ptr = close + 1;
                 j++;

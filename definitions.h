@@ -47,6 +47,7 @@ struct colorToken {
 #define WELCOME "Welcome to rtcalc!\n"
 #define VALID_LIST "0123456789+-*/().^% "
 #define OPERATIONS "+-*/^%"
+#define DELIMITERS ".()[]+-*/^%"
 // x.y.z
 // x for big, monumental changes
 // y for addition of new features
@@ -91,6 +92,7 @@ enum funcIndex {
     TANGENT_H,
     FLOOR,
     CEILING,
+    GAMMA,
 };
 
 #endif

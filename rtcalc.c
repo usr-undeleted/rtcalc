@@ -172,36 +172,61 @@ int main (int argc, char *argv[]) {
                             // control+left, aka move left (word)
                             uint8_t leftWhite = 0;
 
-                            while (cursorPos > 0) {
-                                // skip trailling whitespace
-                                if (!leftWhite) {
-                                    if (!isspace(calcBuffer[cursorPos - 1])) leftWhite = 1;
-                                } else {
-                                    if (isspace(calcBuffer[cursorPos - 1])) break;
-                                }
+                            if (cursorPos > 0) {
+                                if (strchr(DELIMITERS, calcBuffer[cursorPos - 1])) {
+                                    // if the cursor is already at a delimiter,
+                                    // move only delimiters on loop
+                                    while (cursorPos > 0 && strchr(DELIMITERS, calcBuffer[cursorPos - 1])) {
+                                        // move on loop
+                                        cursorPos--;
+                                    }
 
-                                // move on loop
-                                cursorPos--;
+                                } else {
+                                    while (cursorPos > 0) {
+                                        // skip trailling whitespace
+                                        if (!leftWhite) {
+                                            if (!isspace(calcBuffer[cursorPos - 1])) leftWhite = 1;
+                                        } else {
+                                            if (isspace(calcBuffer[cursorPos - 1]) ||
+                                                strchr(DELIMITERS, calcBuffer[cursorPos - 1])) break;
+                                        }
+
+                                        // move on loop
+                                        cursorPos--;
+                                    }
+                                }
                             }
+
                         } else if (!strcmp(seq, ";5C")) {
                             // control+right, aka move right (word)
                             uint8_t rightWhite = 0;
 
-                            if (cursorPos != len) cursorPos += 1;
-                            while (cursorPos <= len) {
-                                // skip trailling whitespace
-                                if (!rightWhite) {
-                                    if (!isspace(calcBuffer[cursorPos])) rightWhite = 1;
-                                } else {
-                                    if (isspace(calcBuffer[cursorPos])) break;
-                                }
+                            if (cursorPos < len) {
+                                if (strchr(DELIMITERS, calcBuffer[cursorPos])) {
+                                    while (cursorPos < len && strchr(DELIMITERS, calcBuffer[cursorPos])) {
+                                        cursorPos++;
+                                    }
 
-                                // move on loop
-                                cursorPos++;
+                                } else {
+                                    while (cursorPos < len) {
+                                        // skip trailling whitespace
+                                        if (!rightWhite) {
+                                            if (!isspace(calcBuffer[cursorPos])) rightWhite = 1;
+                                        } else {
+                                            if (isspace(calcBuffer[cursorPos]) ||
+                                                strchr(DELIMITERS, calcBuffer[cursorPos])) break;
+                                        }
+
+                                        // move on loop
+                                        cursorPos++;
+                                    }
+                                }
                             }
+
                         } else {
                             continue;
                         }
+
                         break;
                     }
 
@@ -223,18 +248,33 @@ int main (int argc, char *argv[]) {
             // ctrl + w, aka delete word
             uint8_t leftWhite = 0;
 
-            while (cursorPos > 0) {
-                // skip trailling whitespace
-                if (!leftWhite) {
-                    if (!isspace(calcBuffer[cursorPos - 1])) leftWhite = 1;
-                } else {
-                    if (isspace(calcBuffer[cursorPos - 1])) break;
-                }
+            if (cursorPos > 0) {
+                if (strchr(DELIMITERS, calcBuffer[cursorPos - 1])) {
+                    // if the cursor is already at a delimiter,
+                    // delete only delimiters on loop
+                    while (cursorPos > 0 && strchr(DELIMITERS, calcBuffer[cursorPos - 1])) {
+                        // delete on loop
+                        memmove(&calcBuffer[cursorPos - 1], &calcBuffer[cursorPos], len - cursorPos);
+                        cursorPos--;
+                        calcBuffer[--len] = '\0';
+                    }
 
-                // delete on loop
-                memmove(&calcBuffer[cursorPos - 1], &calcBuffer[cursorPos], len - cursorPos);
-                cursorPos--;
-                calcBuffer[--len] = '\0';
+                } else {
+                    while (cursorPos > 0) {
+                        // skip trailling whitespace
+                        if (!leftWhite) {
+                            if (!isspace(calcBuffer[cursorPos - 1])) leftWhite = 1;
+                        } else {
+                            if (isspace(calcBuffer[cursorPos - 1]) ||
+                                strchr(DELIMITERS, calcBuffer[cursorPos - 1])) break;
+                        }
+
+                        // delete on loop
+                        memmove(&calcBuffer[cursorPos - 1], &calcBuffer[cursorPos], len - cursorPos);
+                        cursorPos--;
+                        calcBuffer[--len] = '\0';
+                    }
+                }
             }
 
         } else if (c == 0x18) {

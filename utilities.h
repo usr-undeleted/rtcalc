@@ -75,6 +75,9 @@ static inline void helpMenu(char *error, int ret) {
 
         "\e[1mCeiling:\e[0m\n"
         "- \e[4mceil[x]\e[0m, results in the ceiling of \e[1m'x'.\e[0m\n"
+
+        "\e[1mGamma:\e[0m\n"
+        "- \e[4mgamma[x]\e[0m, results in the gamma of \e[1m'x'.\e[0m\n"
         "\n" // end of function list
 
         "\e[3mDetails:\e[0m\n"
@@ -173,6 +176,7 @@ static inline int getFuncIndex(const char *ptr) {
     if (!strncmp(ptr, "tanh", 4))  return TANGENT_H;
     if (!strncmp(ptr, "floor", 5)) return FLOOR;
     if (!strncmp(ptr, "ceil",  4)) return CEILING;
+    if (!strncmp(ptr, "gamma", 5)) return GAMMA;
     return -1;
 }
 
