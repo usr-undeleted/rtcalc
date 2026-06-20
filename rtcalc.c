@@ -238,10 +238,17 @@ int main (int argc, char *argv[]) {
             }
 
         } else if (c == 0x18) {
-            // ctrl + k, aka clear line
+            // ctrl + x, aka clear line
             len = 0;
             cursorPos = 0;
             memset(calcBuffer, '\0', sizeof(calcBuffer));
+
+        } else if (c == 0xB) {
+            // ctrl + k, aka clear everything right of cursor position
+            if (calcBuffer[0] != '\0') {
+                memset(calcBuffer + cursorPos, '\0', len - cursorPos);
+                len = cursorPos;
+            }
 
         } else if (c == 0x1) {
             // ctrl + a, aka move to start

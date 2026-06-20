@@ -51,7 +51,7 @@ struct colorToken {
 // x for big, monumental changes
 // y for addition of new features
 // z for fixes
-#define VERSION "release 1.10.3"
+#define VERSION "release 1.11.3"
 #define CT_FLAG_EMPTY 0
 #define CT_FLAG_READ_BRACKETS 1
 
