@@ -45,13 +45,13 @@ struct colorToken {
 #define USER_MISTAKE 2
 #define CODE_MISTAKE 1
 #define WELCOME "Welcome to rtcalc!\n"
-#define VALID_LIST "0123456789+-*/().^ "
-#define OPERATIONS "+-*/^"
+#define VALID_LIST "0123456789+-*/().^% "
+#define OPERATIONS "+-*/^%"
 // x.y.z
 // x for big, monumental changes
 // y for addition of new features
 // z for fixes
-#define VERSION "release 1.9.3"
+#define VERSION "release 1.10.3"
 #define CT_FLAG_EMPTY 0
 #define CT_FLAG_READ_BRACKETS 1
 

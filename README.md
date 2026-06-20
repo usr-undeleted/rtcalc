@@ -54,11 +54,14 @@ Operators:
 - Multiplication (*)
 - Division (/)
 - Powers (^)
+- Modulo (%)
 Functions:  
 - Square roots (sqrt[x])
 - Cube roots (cbrt[x])
 - Sines, Cosines and Tangents (sin[x], cos[x], tan[x])
 - Natural logarithms (log[x])
+- Hyperbolic functions
+- Floor and ceiling
 
 ## Code guidelines
 ### Code principles

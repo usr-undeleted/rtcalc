@@ -32,7 +32,17 @@ static inline void helpMenu(char *error, int ret) {
         "\e[1mBasic examples:\e[0m\n"
         "\e[4m10 + 2 * 3\e[0m\n"
         "\e[4m2 ^ (10 * (40 / 2))\e[0m\n\n"
-        "- This tool also presents math functions, those being (with an example each):\n"
+
+        "- Basic operators are:\n"
+        "\e[1mAddition\e[0m (+)\n"
+        "\e[1mSubtraction\e[0m (-)\n"
+        "\e[1mMultiplication\e[0m (*)\n"
+        "\e[1mDivision\e[0m (/)\n"
+        "\e[1mExponents\e[0m (^)\n"
+        "\e[1mRemainder of division\e[0m (%%)\n"
+        "\n"
+
+        "- This tool also presents math functions, those being:\n"
         "\e[1mSquare root:\e[0m\n"
         "- \e[4msqrt[x]\e[0m, results in the square root of \e[1m'x'.\e[0m\n"
 
@@ -65,7 +75,7 @@ static inline void helpMenu(char *error, int ret) {
 
         "\e[1mCeiling:\e[0m\n"
         "- \e[4mceil[x]\e[0m, results in the ceiling of \e[1m'x'.\e[0m\n"
-        "\n"
+        "\n" // end of function list
 
         "\e[3mDetails:\e[0m\n"
         "- Invalid input will lead to an error, preventing calculation.\n"
@@ -144,7 +154,7 @@ static inline void restoreTerminal(void) {
 static inline uint8_t getPriority(const char operation) {
     switch (operation) {
         case '+': case '-': return 1;
-        case '*': case '/': return 2;
+        case '*': case '/': case '%': return 2;
         case '^': return 3;
     }
     return 0;
@@ -194,6 +204,7 @@ static inline double calculateTrio(double left, char op, double right) {
         case '/': result = left / right; break;
         case '*': result = left * right; break;
         case '^': result = pow(left, right); break;
+        case '%': result = fmod(left, right); break;
         default: break;
     }
 
