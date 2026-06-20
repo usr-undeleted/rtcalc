@@ -15,6 +15,8 @@
 struct termios backup = { 0 };
 int retCode = 0;
 char *prompt = ">>> ";
+// see definitions for the flags
+unsigned char globalFlags = 0;
 
 // look for invalid characters
 int validateBuffer(char *buffer, int *highestPrio) {
@@ -148,7 +150,11 @@ size_t countTokens(const char *buf, const char flags) {
                 char *open = ptr;
                 char *close = findFuncClose(ptr, &open, NULL);
 
-                ptr = close + 1;
+                if (flags & CT_FLAG_READ_BRACKETS) {
+                    ptr = open;
+                } else {
+                    ptr = close + 1;
+                }
                 count++;
                 mode = !mode;
                 continue;
@@ -380,9 +386,8 @@ static inline void printBufColored(const char *buf) {
             tokens[j].type = SC_FUNCTION;
             tokens[j].ptr  = ptr;
 
-            ptr = close + 1;
+            ptr = strchr(ptr, '[');
             j++;
-            mode = !mode;
             continue;
         }
 
@@ -463,6 +468,10 @@ int main (int argc, char *argv[]) {
                 start++;
                 prompt = start;
 
+            } else if (!strcmp(argv[i], "syntax-highlighting")) {
+                // define syntax highlightning
+                globalFlags |= USE_PRETTY_COLORS;
+
             } else {
                 helpMenu("\n\e[31mError: Improper flag used.\e[0m\n", USER_MISTAKE);
 
@@ -535,8 +544,17 @@ int main (int argc, char *argv[]) {
                "\e[A\r\e[2K%s\r\e[B%s", // replace result and prompt
                result, prompt
         );
-        if (!ret) printBufColored(calcBuffer);
-        else printf("\e[31m%s\e[0m", calcBuffer);
+
+        // print buffer itself
+        if (globalFlags & USE_PRETTY_COLORS) {
+            // yes colors >:3
+            if (!ret) printBufColored(calcBuffer);
+            else printf("\e[31m%s\e[0m", calcBuffer);
+
+        } else {
+            // no colors :(
+            printf("%s%s\e[0m", ret ? "\e[31m" : "", calcBuffer);
+        }
 
         if (ret == 9) continue;
 

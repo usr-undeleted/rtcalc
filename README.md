@@ -15,6 +15,7 @@ POSIX CLI tool that, in real time, take in user input and calculate the formula 
 4. CTRL+W -> Delete word by word
 5. Arrow keys -> Move side to side
 6. CTRL+Arrow keys -> Move word by word
+7. Syntax highlighting (off by default)
 
 ## Compilation
 All testing is done with the `clang` compiler. Bug reports compiled without clang won't be considered. This also applies to compiling flags.  
@@ -29,9 +30,7 @@ To finally run the program, run:
 
 ## Plans
 - Even more shell-like navigation features
-- Customizable parameters such as changing the input prompt or toggling cosmetics.
-- Syntax coloring
-- New functions
+- New math functions
 
 ## Manual
 1. Basic usage

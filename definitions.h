@@ -70,9 +70,14 @@ struct colorToken {
 #define BLACK     "\e[37m"
 #define NUMBER_CLR   YELLOW
 #define OPERATOR_CLR MAGENTA
-#define FUNCTION_CLR RESET
+#define FUNCTION_CLR BLUE
 #define BRACKETS_CLR GREEN
 #define PAREN_CLR    BLUE
+
+// flags for main() to use
+extern unsigned char globalFlags;
+// syntax highlight
+#define USE_PRETTY_COLORS 1
 
 enum funcIndex {
     SQUARE_ROOT,
