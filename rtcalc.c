@@ -14,6 +14,7 @@
 
 struct termios backup = { 0 };
 int retCode = 0;
+unsigned long long precision = 6;
 char *prompt = ">>> ";
 // see definitions for the flags
 unsigned char globalFlags = 0;
@@ -472,6 +473,18 @@ int main (int argc, char *argv[]) {
                 // define syntax highlightning
                 globalFlags |= USE_PRETTY_COLORS;
 
+            } else if (!strncmp(argv[i], "precision", 9)) {
+                // define exact precision
+                char *start = strchr(argv[i], '=');
+                if (!start || !*(start + 1))
+                    helpMenu("\n\e[31mError: Precision not defined properly.\e[0,\n", USER_MISTAKE);
+
+                char *check = ++start;
+                precision = strtoul(start, &check, 10);
+
+                if (check == start || *check != '\0')
+                    helpMenu("\n\e[31mError: Precision is an invalid number.\e[0,\n", USER_MISTAKE);
+
             } else {
                 helpMenu("\n\e[31mError: Improper flag used.\e[0m\n", USER_MISTAKE);
 
@@ -520,13 +533,13 @@ int main (int argc, char *argv[]) {
             } else {
 
                 double calc = calculateBuffer(calcBuffer, highestPrio);
-                if ((resSize = snprintf(NULL, 0, "%lf", calc)) >= 2048) ret = 12;
+                if ((resSize = snprintf(NULL, 0, "%.*lf", (int)precision, calc)) >= 2048) ret = 12;
 
                 if (ret) {
                     snprintf(result, sizeof(result), "Can't calculate: %s", retToStr(ret));
 
                 } else {
-                    snprintf(result, sizeof(result), "%lf", calc);
+                    snprintf(result, sizeof(result), "%.*lf", (int)precision, calc);
                 }
 
             }
@@ -534,12 +547,6 @@ int main (int argc, char *argv[]) {
             snprintf(result, sizeof(result), "Can't calculate: %s", retToStr(ret));
         }
 
-        /*
-        printf("\e[u\e[J"                  // move the cursor back to the start
-               "\e[A\r\e[2K%s\r\e[B%s"  // move cursor to result, print the message, return back to start
-               "%s%s\e[0m",                // print the buffer
-               result, prompt, ret ? "\e[31m" : "", calcBuffer);
-        */
         printf("\e[u\e[J"               // return cursor back to start
                "\e[A\r\e[2K%s\r\e[B%s", // replace result and prompt
                result, prompt
