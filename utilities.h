@@ -200,8 +200,8 @@ static inline char *retToStr(char err) {
 }
 
 // calculate 3 tokens
-static inline double calculateTrio(double left, char op, double right) {
-    double result = 0;
+static inline defaultPrecision calculateTrio(defaultPrecision left, char op, defaultPrecision right) {
+    defaultPrecision result = 0;
     switch (op) {
         case '+': result = left + right; break;
         case '-': result = left - right; break;

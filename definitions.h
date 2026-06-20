@@ -1,6 +1,15 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
+// use more precision or not
+#ifdef USE_LONG_DOUBLE
+#define FORMAT_WITH_PRECISION "%.*Lf"
+typedef long double defaultPrecision;
+#else
+#define FORMAT_WITH_PRECISION "%.*lf"
+typedef double defaultPrecision;
+#endif
+
 enum tokenType {
     SKIP,
     NUMBER,
@@ -23,7 +32,7 @@ struct calcToken {
     // tokenType enum
     enum tokenType type;
     // value of the token
-    double val;
+    defaultPrecision val;
     // operator of the token
     char op;
     // how deep a '(' is
@@ -49,10 +58,10 @@ struct colorToken {
 #define OPERATIONS "+-*/^%"
 #define DELIMITERS ".()[]+-*/^%"
 // x.y.z
-// x for big, monumental changes
+// x for big, monumental changes, or milestones
 // y for addition of new features
-// z for fixes
-#define VERSION "release 1.11.3"
+// z for fixes and small changes
+#define VERSION "release 1.12.4"
 #define CT_FLAG_EMPTY 0
 #define CT_FLAG_READ_BRACKETS 1
 

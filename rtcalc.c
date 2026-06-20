@@ -96,14 +96,14 @@ int main (int argc, char *argv[]) {
 
             } else {
 
-                double calc = calculateBuffer(calcBuffer, highestPrio);
-                if ((resSize = snprintf(NULL, 0, "%.*lf", (int)precision, calc)) >= 2048) ret = 12;
+                defaultPrecision calc = calculateBuffer(calcBuffer, highestPrio);
+                if ((resSize = snprintf(NULL, 0, FORMAT_WITH_PRECISION, (int)precision, calc)) >= 2048) ret = 12;
 
                 if (ret) {
                     snprintf(result, sizeof(result), "Can't calculate: %s", retToStr(ret));
 
                 } else {
-                    snprintf(result, sizeof(result), "%.*lf", (int)precision, calc);
+                    snprintf(result, sizeof(result), FORMAT_WITH_PRECISION, (int)precision, calc);
                 }
 
             }

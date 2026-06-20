@@ -28,6 +28,8 @@ To finally run the program, run:
 ```
 ./rtcalc
 ```
+Compiling notes:  
+- Defining "`USE_LONG_DOUBLE`" increases precision by switching from a regular `double` floating point to a `long double` floating point, going from 64 bits to 128 bits. Note that switching might carry no difference, as implementation may vary from architecture to architecture.
 
 ## Plans
 - Even more shell-like navigation features
@@ -63,6 +65,7 @@ Functions:
 - Natural logarithms (log[x])
 - Hyperbolic functions
 - Floor and ceiling
+- Gamma
 
 ## Code guidelines
 ### Code principles
