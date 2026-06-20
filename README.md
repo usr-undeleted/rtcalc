@@ -42,4 +42,3 @@ Compiling notes:
 Contains headers and main .c file.
 - docs/
 Contains documentation, in both markdown format and manpage format.
-### Documentation
