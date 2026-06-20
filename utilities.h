@@ -138,6 +138,9 @@ static inline int getFuncIndex(const char *ptr) {
     if (!strncmp(ptr, "cos",  3)) return COSINE;
     if (!strncmp(ptr, "tan",  3)) return TANGENT;
     if (!strncmp(ptr, "log",  3)) return N_LOG;
+    if (!strncmp(ptr, "sinh", 4)) return SINE_H;
+    if (!strncmp(ptr, "cosh", 4)) return COSINE_H;
+    if (!strncmp(ptr, "tanh", 4)) return TANGENT_H;
     return -1;
 }
 

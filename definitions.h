@@ -85,7 +85,10 @@ enum funcIndex {
     SINE,
     COSINE,
     TANGENT,
-    N_LOG
+    N_LOG,
+    SINE_H,
+    COSINE_H,
+    TANGENT_H,
 };
 
 #endif
