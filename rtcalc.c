@@ -133,7 +133,8 @@ int validateBuffer(char *buffer, int *highestPrio) {
 
 // count the number of tokens on formula to find
 // correct mem allocate size
-size_t countTokens(const char *buf) {
+// contains flag that change its usage, see header
+size_t countTokens(const char *buf, const char flags) {
     int count = 0;
     char *ptr = (char *)buf;
     uint8_t mode = 0; // same mode logic as validator
@@ -161,6 +162,13 @@ size_t countTokens(const char *buf) {
             continue;
         }
 
+        // optional brackets
+        if (flags & CT_FLAG_READ_BRACKETS && (*ptr == '[' || *ptr == ']')) {
+            ptr++;
+            count++;
+            continue;
+        }
+
         // switch type
         if (!mode) {
             // numbers
@@ -180,7 +188,7 @@ size_t countTokens(const char *buf) {
 // orchestrate everything together
 double calculateBuffer(const char *buf, const int highestPrio) {
     // each token eventually gets reduced to result
-    size_t count = countTokens(buf);
+    size_t count = countTokens(buf, CT_FLAG_EMPTY);
     struct calcToken tokens[count];
     memset(tokens, '\0', count * sizeof(struct calcToken));
 
@@ -345,12 +353,99 @@ double calculateBuffer(const char *buf, const int highestPrio) {
     int i = 0;
     while (i < count) {
         if (tokens[i].type == NUMBER) {
-            //free(tokens);
             return tokens[i].val;
         }
         i++;
     }
     return 0;
+}
+
+// read buffer, tokenize it, and print by parts
+static inline void printBufColored(const char *buf) {
+    // create array
+    size_t count = countTokens(buf, CT_FLAG_READ_BRACKETS);
+    struct colorToken tokens[count];
+    memset(tokens, '\0', count * sizeof(struct colorToken));
+
+    // populate array
+    char *ptr = (char *)buf;
+    int j = 0; // what token we are in
+    uint8_t mode = 0;
+    while (*ptr && j < count) {
+        skipWhitespace((const char **)&ptr);
+
+        // functions
+        if (!mode && getFuncIndex(ptr) != -1) {
+            char *close = findFuncClose(ptr, NULL, NULL);
+            tokens[j].type = SC_FUNCTION;
+            tokens[j].ptr  = ptr;
+
+            ptr = close + 1;
+            j++;
+            mode = !mode;
+            continue;
+        }
+
+        // parentheses
+        if (*ptr == '(' || *ptr == ')') {
+            tokens[j].type = SC_PARENTHESES;
+            tokens[j].ptr  = ptr;
+
+            ptr++;
+            j++;
+            continue;
+        }
+
+        // brackets
+        if (*ptr == '[' || *ptr == ']') {
+            tokens[j].type = SC_BRACKETS;
+            tokens[j].ptr  = ptr;
+
+            ptr++;
+            j++;
+            continue;
+        }
+
+        // trees
+        if (!mode) {
+            // numbers
+            tokens[j].type = SC_NUMBER;
+            tokens[j].ptr  = ptr;
+            strtod(ptr, &ptr);
+            j++;
+
+        } else {
+            // operators
+            tokens[j].type = SC_OPERATOR;
+            tokens[j].ptr  = ptr;
+            ptr++;
+            j++;
+        }
+
+        // break early if there is nothing fowards
+        if (*ptr == '\0') break;
+
+        mode = !mode;
+    }
+    // define last "null-terminating" array item
+    skipWhitespace((const char **)&ptr);
+    tokens[j].type = SC_EMPTY;
+    tokens[j].ptr  = ptr;
+
+    // print array
+    for (int i = 0; i < count; i++) {
+        if (tokens[i].type == SC_EMPTY) break;
+
+        if      (tokens[i].type == SC_NUMBER)      printf("%s", NUMBER_CLR);
+        else if (tokens[i].type == SC_OPERATOR)    printf("%s", OPERATOR_CLR);
+        else if (tokens[i].type == SC_PARENTHESES) printf("%s", PAREN_CLR);
+        else if (tokens[i].type == SC_BRACKETS)    printf("%s", BRACKETS_CLR);
+        else if (tokens[i].type == SC_FUNCTION)    printf("%s", FUNCTION_CLR);
+
+        // only print up to before next pointer
+        int len = tokens[i + 1].ptr - tokens[i].ptr;
+        printf("%.*s\e[0m", len, tokens[i].ptr);
+    }
 }
 
 int main (int argc, char *argv[]) {
@@ -430,10 +525,18 @@ int main (int argc, char *argv[]) {
             snprintf(result, sizeof(result), "Can't calculate: %s", retToStr(ret));
         }
 
+        /*
         printf("\e[u\e[J"                  // move the cursor back to the start
                "\e[A\r\e[2K%s\r\e[B%s"  // move cursor to result, print the message, return back to start
                "%s%s\e[0m",                // print the buffer
                result, prompt, ret ? "\e[31m" : "", calcBuffer);
+        */
+        printf("\e[u\e[J"               // return cursor back to start
+               "\e[A\r\e[2K%s\r\e[B%s", // replace result and prompt
+               result, prompt
+        );
+        if (!ret) printBufColored(calcBuffer);
+        else printf("\e[31m%s\e[0m", calcBuffer);
 
         if (ret == 9) continue;
 

@@ -62,6 +62,11 @@ static inline void helpMenu(char *error, int ret) {
     exit(ret);
 }
 
+// take pointer and shift it to the right until it stops being whitespace
+static inline void skipWhitespace(const char **pp) {
+    while (isspace(**pp)) (*pp)++;
+};
+
 // find matching ']' for '[', and return pointer.
 // if either childBuf or childLine are NULL, skip their definitions.
 // return NULL on malformation
@@ -122,11 +127,6 @@ static inline uint8_t getPriority(const char operation) {
     }
     return 0;
 }
-
-// take pointer and shift it to the right until it stops being whitespace
-static inline void skipWhitespace(const char **pp) {
-    while (isspace(**pp)) (*pp)++;
-};
 
 // find proper func and return enum equivalent, return -1 on fail
 static inline int getFuncIndex(const char *ptr) {

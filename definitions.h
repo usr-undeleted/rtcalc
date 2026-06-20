@@ -8,6 +8,16 @@ enum tokenType {
     PARENTHESES
 };
 
+enum tokenColorType {
+    SC_EMPTY,
+    SC_NUMBER,
+    SC_OPERATOR,
+    SC_FUNCTION,
+    SC_PARENTHESES,
+    SC_BRACKETS,
+};
+
+// used by calculateBuffer
 struct calcToken {
     // the kind of token to be worked with, defined by
     // tokenType enum
@@ -18,6 +28,14 @@ struct calcToken {
     char op;
     // how deep a '(' is
     unsigned int depth;
+    // where a token is located in it's original string
+    char *ptr;
+};
+
+// used by syntax coloring
+struct colorToken {
+    // the kind of token, to determine its color
+    enum tokenColorType type;
     // where a token is located in it's original string
     char *ptr;
 };
@@ -33,7 +51,28 @@ struct calcToken {
 // x for big, monumental changes
 // y for addition of new features
 // z for fixes
-#define VERSION "release 1.7.2"
+#define VERSION "release 1.8.2"
+#define CT_FLAG_EMPTY 0
+#define CT_FLAG_READ_BRACKETS 1
+
+// colors
+#define RESET     "\e[0m"
+#define BOLD      "\e[1m"
+#define DIM       "\e[2m"
+#define ITALIC    "\e[3m"
+#define UNDERLINE "\e[4m"
+#define RED       "\e[31m"
+#define GREEN     "\e[32m"
+#define YELLOW    "\e[33m"
+#define BLUE      "\e[34m"
+#define MAGENTA   "\e[35m"
+#define CYAN      "\e[36m"
+#define BLACK     "\e[37m"
+#define NUMBER_CLR   YELLOW
+#define OPERATOR_CLR MAGENTA
+#define FUNCTION_CLR RESET
+#define BRACKETS_CLR GREEN
+#define PAREN_CLR    BLUE
 
 enum funcIndex {
     SQUARE_ROOT,
