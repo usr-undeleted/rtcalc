@@ -56,6 +56,7 @@ static inline void helpMenu(char *error, int ret) {
         "\e[3mAdditional arguments:\e[0m\n"
         "- \e[1m\"help\"\e[0m: Show this menu.\n"
         "- \e[1m\"prompt=<prompt>\"\e[0m: Define a custom prompt before startup (space not included).\n"
+        "- \e[1m\"syntax-highlighting\"\e[0m: Enable syntax highlighting on the input.\n"
         "%s"
         ,
         VERSION, BUFFER_SIZE - 1, RESULT_SIZE - 1, error != NULL ? error : "");
