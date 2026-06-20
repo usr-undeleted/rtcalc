@@ -89,6 +89,8 @@ enum funcIndex {
     SINE_H,
     COSINE_H,
     TANGENT_H,
+    FLOOR,
+    CEILING,
 };
 
 #endif

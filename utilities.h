@@ -35,16 +35,36 @@ static inline void helpMenu(char *error, int ret) {
         "- This tool also presents math functions, those being (with an example each):\n"
         "\e[1mSquare root:\e[0m\n"
         "- \e[4msqrt[x]\e[0m, results in the square root of \e[1m'x'.\e[0m\n"
+
         "\e[1mCube root:\e[0m\n"
         "- \e[4mcbrt[x]\e[0m, results in the cube root of \e[1m'x'.\e[0m\n"
+
         "\e[1mSine:\e[0m\n"
         "- \e[4msin[x]\e[0m, results in the sine of \e[1m'x'.\e[0m\n"
+
         "\e[1mCosine:\e[0m\n"
         "- \e[4mcos[x]\e[0m, results in the cosine of \e[1m'x'.\e[0m\n"
+
         "\e[1mTangent:\e[0m\n"
         "- \e[4mtan[x]\e[0m, results in the tangent of \e[1m'x'.\e[0m\n"
+
         "\e[1mNatural logarithm:\e[0m\n"
         "- \e[4mlog[x]\e[0m, results in the natural logarithm of \e[1m'x'.\e[0m\n"
+
+        "\e[1mHyperbolic sine:\e[0m\n"
+        "- \e[4msinh[x]\e[0m, results in the hyperbolic sine of \e[1m'x'.\e[0m\n"
+
+        "\e[1mHyperbolic cosine:\e[0m\n"
+        "- \e[4mcohs[x]\e[0m, results in the hyperbolic cosine of \e[1m'x'.\e[0m\n"
+
+        "\e[1mHyperbolic tangent:\e[0m\n"
+        "- \e[4mtanh[x]\e[0m, results in the hyperbolic tangent of \e[1m'x'.\e[0m\n"
+
+        "\e[1mFloor:\e[0m\n"
+        "- \e[4msin[x]\e[0m, results in the floor of \e[1m'x'.\e[0m\n"
+
+        "\e[1mCeiling:\e[0m\n"
+        "- \e[4mceil[x]\e[0m, results in the ceiling of \e[1m'x'.\e[0m\n"
         "\n"
 
         "\e[3mDetails:\e[0m\n"
@@ -132,15 +152,17 @@ static inline uint8_t getPriority(const char operation) {
 
 // find proper func and return enum equivalent, return -1 on fail
 static inline int getFuncIndex(const char *ptr) {
-    if (!strncmp(ptr, "sqrt", 4)) return SQUARE_ROOT;
-    if (!strncmp(ptr, "cbrt", 4)) return CUBE_ROOT;
-    if (!strncmp(ptr, "sin",  3)) return SINE;
-    if (!strncmp(ptr, "cos",  3)) return COSINE;
-    if (!strncmp(ptr, "tan",  3)) return TANGENT;
-    if (!strncmp(ptr, "log",  3)) return N_LOG;
-    if (!strncmp(ptr, "sinh", 4)) return SINE_H;
-    if (!strncmp(ptr, "cosh", 4)) return COSINE_H;
-    if (!strncmp(ptr, "tanh", 4)) return TANGENT_H;
+    if (!strncmp(ptr, "sqrt", 4))  return SQUARE_ROOT;
+    if (!strncmp(ptr, "cbrt", 4))  return CUBE_ROOT;
+    if (!strncmp(ptr, "sin",  3))  return SINE;
+    if (!strncmp(ptr, "cos",  3))  return COSINE;
+    if (!strncmp(ptr, "tan",  3))  return TANGENT;
+    if (!strncmp(ptr, "log",  3))  return N_LOG;
+    if (!strncmp(ptr, "sinh", 4))  return SINE_H;
+    if (!strncmp(ptr, "cosh", 4))  return COSINE_H;
+    if (!strncmp(ptr, "tanh", 4))  return TANGENT_H;
+    if (!strncmp(ptr, "floor", 5)) return FLOOR;
+    if (!strncmp(ptr, "ceil",  4)) return CEILING;
     return -1;
 }
 

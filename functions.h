@@ -1,6 +1,7 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+#include "definitions.h"
 #include "utilities.h"
 
 // the meat of the project
@@ -214,12 +215,17 @@ static inline double calculateBuffer(const char *buf, const int highestPrio) {
 
                 tokens[j].type = NUMBER;
                 switch (getFuncIndex(ptr)) {
-                    case SQUARE_ROOT: tokens[j].val = sqrt(calculateBuffer(child, childPrio)); break;
-                    case CUBE_ROOT:   tokens[j].val = cbrt(calculateBuffer(child, childPrio)); break;
-                    case SINE:        tokens[j].val = sin (calculateBuffer(child, childPrio)); break;
-                    case COSINE:      tokens[j].val = cos (calculateBuffer(child, childPrio)); break;
-                    case TANGENT:     tokens[j].val = tan (calculateBuffer(child, childPrio)); break;
-                    case N_LOG:       tokens[j].val = log (calculateBuffer(child, childPrio)); break;
+                    case SQUARE_ROOT: tokens[j].val = sqrt (calculateBuffer(child, childPrio)); break;
+                    case CUBE_ROOT:   tokens[j].val = cbrt (calculateBuffer(child, childPrio)); break;
+                    case SINE:        tokens[j].val = sin  (calculateBuffer(child, childPrio)); break;
+                    case COSINE:      tokens[j].val = cos  (calculateBuffer(child, childPrio)); break;
+                    case TANGENT:     tokens[j].val = tan  (calculateBuffer(child, childPrio)); break;
+                    case N_LOG:       tokens[j].val = log  (calculateBuffer(child, childPrio)); break;
+                    case SINE_H:      tokens[j].val = sinh (calculateBuffer(child, childPrio)); break;
+                    case COSINE_H:    tokens[j].val = cosh (calculateBuffer(child, childPrio)); break;
+                    case TANGENT_H:   tokens[j].val = tanh (calculateBuffer(child, childPrio)); break;
+                    case FLOOR:       tokens[j].val = floor(calculateBuffer(child, childPrio)); break;
+                    case CEILING:     tokens[j].val = ceil (calculateBuffer(child, childPrio)); break;
                 }
                 ptr = close + 1;
                 j++;
