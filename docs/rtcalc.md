@@ -129,7 +129,7 @@ You may write formulas inside of functions.
 `gamma[x]`
 : Perform the gamma of 'x'.
 
-# Navigation
+# NAVIGATION
 
 The program offers basic shell-like navigation options.
 
