@@ -31,7 +31,7 @@ int retCode = 0;
 #define RESULT_SIZE 2049UL
 #define USER_MISTAKE 2
 #define CODE_MISTAKE 1
-#define PROMPT ">>> "
+char *prompt = ">>> ";
 #define WELCOME "Welcome to rtcalc!\n"
 #define VALID_LIST "0123456789+-*/().^ "
 #define OPERATIONS "+-*/^"
@@ -79,6 +79,7 @@ void helpMenu(char *error, int ret) {
 
         "\e[3mAdditional arguments:\e[0m\n"
         "- \e[1m\"help\"\e[0m: Show this menu.\n"
+        "- \e[1m\"prompt=<prompt>\"\e[0m: Define a custom prompt before startup (space not included).\n"
         "%s"
         ,
         VERSION, BUFFER_SIZE - 1, RESULT_SIZE - 1, error != NULL ? error : "");
@@ -558,8 +559,17 @@ int main (int argc, char *argv[]) {
         for (int i = 1; i < argc; i++) {
             if (!strcmp(argv[i], "help")) {
                 helpMenu(NULL, 0);
+
+            } else if (!strncmp(argv[i], "prompt", 6)) {
+                // set custom prompt
+                char *start = strchr(argv[i], '=');
+                if (!start || !*(start + 1))
+                    helpMenu("\n\e[31mError: Prompt not defined properly.\e[0,\n", USER_MISTAKE);
+                start++;
+                prompt = start;
+
             } else {
-                helpMenu("Error: improper flag used.\n", USER_MISTAKE);
+                helpMenu("\n\e[31mError: Improper flag used.\e[0m\n", USER_MISTAKE);
 
             }
         }
@@ -588,7 +598,7 @@ int main (int argc, char *argv[]) {
     unsigned int cursorPos = 0;
 
     // show prompt + save cursor pos
-    printf("\n%s\e[s", PROMPT);
+    printf("\n%s\e[s", prompt);
     char result[RESULT_SIZE] = { 0 };
     size_t resSize = 0;
 
@@ -623,7 +633,7 @@ int main (int argc, char *argv[]) {
         printf("\e[u\e[J"                  // move the cursor back to the start
                "\e[A\r\e[2K%s\r\e[B%s"  // move cursor to result, print the message, return back to start
                "%s%s\e[0m",                // print the buffer
-               result, PROMPT, ret ? "\e[31m" : "", calcBuffer);
+               result, prompt, ret ? "\e[31m" : "", calcBuffer);
 
         if (ret == 9) continue;
 
