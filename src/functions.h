@@ -391,6 +391,10 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                             calculateBuffer(childTwo, childTwoPrio, variables)); break;
                         case TANGENT_A2: tokens[j].val = atan2(calculateBuffer(childOne, childOnePrio, variables),
                             calculateBuffer(childTwo, childTwoPrio, variables)); break;
+                        case MAXIMUM:    tokens[j].val = fmax (calculateBuffer(childOne, childOnePrio, variables),
+                            calculateBuffer(childTwo, childTwoPrio, variables)); break;
+                        case MINIMUN:    tokens[j].val = fmin (calculateBuffer(childOne, childOnePrio, variables),
+                            calculateBuffer(childTwo, childTwoPrio, variables)); break;
                     }
 
                     ptr = close + 1;
@@ -441,6 +445,7 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     case TRUNCATE:     tokens[j].val = trunc (calculateBuffer(child, childPrio, variables)); break;
                     case ERROR_FUNC:   tokens[j].val = erf   (calculateBuffer(child, childPrio, variables)); break;
                     case ERROR_FUNC_C: tokens[j].val = erfc  (calculateBuffer(child, childPrio, variables)); break;
+                    case ABSOLUTE:     tokens[j].val = fabs  (calculateBuffer(child, childPrio, variables)); break;
                 }
                 ptr = close + 1;
                 j++;

@@ -192,6 +192,17 @@ Note that all trigonometric functions return in radians.
 `erfc[x]`
 : Perform the value of the complementary error function at 'x'.
 
+## Miscellaneous
+
+`abs[x]`
+: Get the absolute of 'x'.
+
+`fmax[x, y]`
+: Get the highest value of a floating 'x' and 'y'.
+
+`fmin[x, y]`
+: Get the lowest value of a floating 'x' and 'y'.
+
 # NAVIGATION
 
 The program offers basic shell-like navigation options.
