@@ -163,7 +163,7 @@ Note that all trigonometric functions return in radians.
 `log2[x]`
 : Perform the base 2 logarithm of 'x'.
 
-`logx[x, y]`
+`logx[x, y]` (aka `log_x()`)
 : Perform the base 'y' logarithm of 'x'.
 
 ## Special Functions
