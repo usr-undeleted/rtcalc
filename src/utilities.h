@@ -185,6 +185,8 @@ static inline int getFuncIndex(const char *ptr) {
     if (!strncmp(ptr, "tan",    3)) return TANGENT;
     if (!strncmp(ptr, "log",    3)) return N_LOG;
     if (!strncmp(ptr, "abs",    3)) return ABSOLUTE;
+    if (!strncmp(ptr, "deg",    3)) return RAD_TO_DEG;
+    if (!strncmp(ptr, "rad",    3)) return DEG_TO_RAD;
     return -1;
 }
 

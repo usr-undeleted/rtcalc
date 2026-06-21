@@ -1,4 +1,4 @@
-% rtcalc(1) rtcalc release 1.25.7
+% rtcalc(1) rtcalc release 1.26.7
 % undeleted
 % June 2026
 
@@ -141,6 +141,14 @@ Note that all trigonometric functions return in radians.
 
 `atan2[x]`
 : Get the angle theta from the conversion of rectangular coordinates (x, y) to polar coordinates (r, theta).
+
+## Conversion
+
+`deg[x]`
+: Convert radians to degrees.
+
+`rad[x]`
+: Convert degrees to radians.
 
 ## Rounding
 
