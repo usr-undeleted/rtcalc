@@ -57,7 +57,7 @@ static inline void skipWhitespace(const char **pp) {
 };
 
 // find matching ']' for '[', and return pointer.
-// if either childBuf or childLine are NULL, skip their definitions.
+// if any editable fields are NULL, dont change them
 // return NULL on malformation
 static inline char *findFuncClose(const char *ptr, char **openOut, int *errCode) {
     char *open = strchr((char *)ptr, '[');
@@ -91,6 +91,39 @@ static inline char *findFuncClose(const char *ptr, char **openOut, int *errCode)
 
     if (openOut != NULL) {
         *openOut = open;
+    }
+
+    return close;
+}
+
+// get '{' and return equivalent '}'
+// return NULL on malformation
+static inline char *findVarClose(const char *ptr) {
+    char *open = strchr((char *)ptr, '{');
+    if (!open) {
+        return NULL;
+    }
+    char *close = open;
+
+    // set close, making sure there isnt something bad like {{}
+    size_t depth = 0;
+    char *validateBracket = close;
+    // set final bracket, checking depth and also seeing if its empty
+    while (*validateBracket) {
+        switch (*validateBracket) {
+            case '{': depth++; break;
+            case '}': {
+                close = validateBracket;
+                if (depth > 0) depth--;
+                break;
+            }
+        }
+
+        validateBracket++;
+        if (depth == 0) break;
+    }
+    if (depth || close == open) {
+        return NULL;
     }
 
     return close;
@@ -149,6 +182,8 @@ static inline char *retToStr(char err) {
         case 10: return (char *)"A function has invalid brackets."; break;
         case 11: return (char *)"A function has no contents."; break;
         case 12: return (char *)"Result display size limit reached - Sorry!"; break;
+        case 13: return (char *)"Invalid formula insertion, unclosed curly brackets."; break;
+        case 14: return (char *)"Invalid formula insertion, unknown variable."; break;
         default: return (char *)"Unknown error num - Sorry! :p"; break;
     }
 }

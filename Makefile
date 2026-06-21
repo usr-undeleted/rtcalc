@@ -1,5 +1,6 @@
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 OUTPUT_PATH = $(ROOT_DIR)"/bin/rtcalc"
+COMPILE_FLAGS = ""
 
 compile:
 	@if [ "$(origin OUTPUT_PATH)" = "file" ] && [ ! -d "bin/" ]; then \

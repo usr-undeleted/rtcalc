@@ -14,45 +14,90 @@
 
 struct termios backup = { 0 };
 int retCode = 0;
-unsigned long long precision = 6;
-char *prompt = ">>> ";
-// see definitions for the flags
-unsigned char globalFlags = 0;
 
 int main (int argc, char *argv[]) {
-    if (argc > 1) {
-        // loop trough stuffies and match argument
-        for (int i = 1; i < argc; i++) {
-            if (!strcmp(argv[i], "help")) {
-                helpMenu(NULL, 0);
+    unsigned long long precision = 6;
+    char *prompt = ">>> ";
+    // see definitions for the flags
+    unsigned char globalFlags = 0;
 
-            } else if (!strncmp(argv[i], "prompt", 6)) {
-                // set custom prompt
-                char *start = strchr(argv[i], '=');
-                if (!start || !*(start + 1))
-                    helpMenu("\n\e[31mError: Prompt not defined properly.\e[0,\n", USER_MISTAKE);
-                start++;
-                prompt = start;
+    // environment variables
+    // maybe only allocate if needed in the future with <alloca.h>?
+    struct variable variables[MAX_VARIABLES + 1] = { 0 };
+    unsigned short varCount = 0; // how many slots were used up + index
 
-            } else if (!strcmp(argv[i], "syntax-highlighting")) {
-                // define syntax highlightning
-                globalFlags |= USE_PRETTY_COLORS;
+    // loop trough stuffies and match argument
+    for (int i = 1; i < argc; i++) {
+        if (!strcmp(argv[i], "help")) {
+            helpMenu(NULL, 0);
 
-            } else if (!strncmp(argv[i], "precision", 9)) {
-                // define exact precision
-                char *start = strchr(argv[i], '=');
-                if (!start || !*(start + 1))
-                    helpMenu("\n\e[31mError: Precision not defined properly.\e[0,\n", USER_MISTAKE);
+        } else if (!strncmp(argv[i], "prompt", 6)) {
+            // set custom prompt
+            char *start = strchr(argv[i], '=');
+            if (!start || !*(start + 1))
+                helpMenu("\n\e[31mError: Prompt not defined properly.\e[0,\n", USER_MISTAKE);
+            start++;
+            prompt = start;
 
-                char *check = ++start;
-                precision = strtoul(start, &check, 10);
+        } else if (!strcmp(argv[i], "syntax-highlighting")) {
+            // define syntax highlightning
+            globalFlags |= USE_PRETTY_COLORS;
 
-                if (check == start || *check != '\0')
-                    helpMenu("\n\e[31mError: Precision is an invalid number.\e[0,\n", USER_MISTAKE);
+        } else if (!strncmp(argv[i], "precision", 9)) {
+            // define exact precision
+            char *start = strchr(argv[i], '=');
+            if (!start || !*(start + 1))
+                helpMenu("\n" ERROR_CLR "\e[31mError: Precision not defined properly.\e[0,\n", USER_MISTAKE);
 
-            } else {
-                helpMenu("\n\e[31mError: Improper flag used.\e[0m\n", USER_MISTAKE);
-            }
+            char *check = ++start;
+            precision = strtoul(start, &check, 10);
+
+            if (check == start || *check != '\0')
+                helpMenu("\n" ERROR_CLR "Error: Precision is an invalid number.\e[0,\n", USER_MISTAKE);
+
+        } else if (!strncmp(argv[i], "define", 5)) {
+            // define env variables
+            // if there are already too many
+            if ((varCount + 1) > MAX_VARIABLES)
+                helpMenu("\n" ERROR_CLR "\e[31mError: Too many variables defined.\e[0,\n", USER_MISTAKE);
+
+            char *name = strchr(argv[i], ':');
+            if (!name)
+                helpMenu("\n" ERROR_CLR "\e[31mError: Definition used incorrectly.\e[0,\n", USER_MISTAKE);
+            name++; // name is at start of name
+            if (!*name)
+                helpMenu("\n" ERROR_CLR "\e[31mError: Definition name was not set.\e[0,\n", USER_MISTAKE);
+
+            char *valuePtr = strchr(argv[i], '=');
+            if (!valuePtr)
+                helpMenu("\n" ERROR_CLR "\e[31mError: Definition has no value.\e[0,\n", USER_MISTAKE);
+            char *eq = valuePtr;
+
+            if (valuePtr == (name))
+                helpMenu("\n" ERROR_CLR "\e[31mError: Definition name is invalid.\e[0,\n", USER_MISTAKE);
+
+            if (*(valuePtr + 1) == '\0')
+                helpMenu("\n" ERROR_CLR "\e[31mError: Definition value is invalid.\e[0,\n", USER_MISTAKE);
+
+            valuePtr++;
+
+            // run calculation stack
+            int childHighestPrio = 0;
+            char ret = 0;
+            if ((ret = validateBuffer(valuePtr, &childHighestPrio, variables)))
+                helpMenu("\n" ERROR_CLR "\e[31mError: Variable couldn't be expanded due to an invalid formula.\e[0,\n", USER_MISTAKE);
+
+            // define
+            variables[varCount].value = calculateBuffer(valuePtr, childHighestPrio, variables);
+            variables[varCount].name  = name;
+            // set null terminator, allowed under C99 section 5.1.2.2.1 :tongue:
+            *eq = '\0';
+            variables[varCount].len   = strlen(name);
+
+            varCount++;
+
+        } else {
+            helpMenu("\n\e[31mError: Improper flag used.\e[0m\n", USER_MISTAKE);
         }
     }
 
@@ -85,18 +130,18 @@ int main (int argc, char *argv[]) {
 
     while(1) {
         int highestPrio = 0;
-        uint8_t ret = validateBuffer(calcBuffer, &highestPrio); // find errors
+        uint8_t ret = validateBuffer(calcBuffer, &highestPrio, variables); // find errors
         if (cursorPos >= 4096) ret = 9; // input size limit
 
         // define result
         if (!ret) {
             if (cursorPos == 0 && calcBuffer[0] == '\0') {
                 memset(result, '\0', sizeof(result));
-                memcpy(result, "Welcome to the realtime math CLI tool!", sizeof(result));
+                memcpy(result, WELCOME, sizeof(result));
 
             } else {
 
-                defaultPrecision calc = calculateBuffer(calcBuffer, highestPrio);
+                defaultPrecision calc = calculateBuffer(calcBuffer, highestPrio, variables);
                 if ((resSize = snprintf(NULL, 0, FORMAT_WITH_PRECISION, (int)precision, calc)) >= 2048) ret = 12;
 
                 if (ret) {
@@ -120,11 +165,11 @@ int main (int argc, char *argv[]) {
         if (globalFlags & USE_PRETTY_COLORS) {
             // yes colors >:3
             if (!ret) printBufColored(calcBuffer);
-            else printf("\e[31m%s\e[0m", calcBuffer);
+            else printf("%s%s\e[0m", ERROR_CLR, calcBuffer);
 
         } else {
             // no colors :(
-            printf("%s%s\e[0m", ret ? "\e[31m" : "", calcBuffer);
+            printf("%s%s\e[0m", ret ? ERROR_CLR : "", calcBuffer);
         }
 
         if (ret == 9) continue;

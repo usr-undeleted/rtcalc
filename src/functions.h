@@ -7,7 +7,7 @@
 // the meat of the project
 
 // look for invalid characters
-static inline int validateBuffer(char *buffer, int *highestPrio) {
+static inline int validateBuffer(char *buffer, int *highestPrio, const struct variable *variables) {
     char *ptr = buffer;
     ssize_t openParentheses = 0; // find '(' and ')'
     uint8_t lastWasParen = 0; // reject '()'
@@ -20,8 +20,46 @@ static inline int validateBuffer(char *buffer, int *highestPrio) {
         if (*ptr == '\0') break;
         lastWasParen = 0;
 
-        // functions
+        // number-like
         if (!mode) {
+            // variables
+            if (*ptr == '{') {
+                char *close = ptr;
+                // open is ptr
+                if (!(close = findVarClose(ptr))) return 13;
+                // form buffer comparator
+                size_t varLen = close - ptr - 1;
+                char bufComp[varLen + 1];
+                memset(bufComp, '\0', sizeof(bufComp));
+                memcpy(bufComp, ptr + 1, varLen);
+
+                // loop trough list and find matching var name
+                int i = 0;
+                uint8_t fail = 1;
+                while (i < MAX_VARIABLES && variables[i].name != NULL) {
+                    // dont even bother with strncmp if the lengths dont match
+                    if (variables[i].len != varLen) {
+                        i++;
+                        continue;
+                    };
+
+                    // finally compare
+                    if (!strncmp(bufComp, variables[i].name, variables[i].len)) {
+                        fail = 0;
+                        break;
+                    }
+
+                    i++;
+                }
+                if (fail) return 14;
+
+                ptr = close + 1;
+                nums++;
+                mode = !mode;
+                continue;
+            }
+
+            // functions
             if (getFuncIndex(ptr) != -1) {
                 // square root
                 int ret = 0;
@@ -47,7 +85,7 @@ static inline int validateBuffer(char *buffer, int *highestPrio) {
                 char child[childLen + 1];
                 memset(child, '\0', childLen + 1);
                 memcpy(child, open + 1, childLen);
-                if ((ret = validateBuffer(child, NULL))) return ret;
+                if ((ret = validateBuffer(child, NULL, variables))) return ret;
 
                 ptr = close + 1;
                 nums++;
@@ -156,7 +194,15 @@ static inline size_t countTokens(const char *buf, const char flags) {
             continue;
         }
 
-        // optional brackets
+        // variable curly brackets
+        if (flags & CT_FLAG_READ_CURLY_BRACKETS && *ptr == '{') {
+            ptr = findVarClose(ptr);
+            ptr++;
+            count += 3;
+            continue;
+        }
+
+        // function brackets
         if (flags & CT_FLAG_READ_BRACKETS && (*ptr == '[' || *ptr == ']')) {
             ptr++;
             count++;
@@ -180,7 +226,7 @@ static inline size_t countTokens(const char *buf, const char flags) {
 }
 
 // orchestrate everything together
-static inline double calculateBuffer(const char *buf, const int highestPrio) {
+static inline defaultPrecision calculateBuffer(const char *buf, const int highestPrio, const struct variable *variables) {
     // each token eventually gets reduced to result
     size_t count = countTokens(buf, CT_FLAG_EMPTY);
     struct calcToken tokens[count];
@@ -194,8 +240,44 @@ static inline double calculateBuffer(const char *buf, const int highestPrio) {
     while (*ptr) {
         skipWhitespace((const char **)&ptr);
 
-        // functions
+        // semi-numbers
         if (!mode) {
+            // variables
+            if (*ptr == '{') {
+                char *close = findVarClose(ptr);
+                // open is ptr
+                // form buffer comparator
+                size_t varLen = close - ptr - 1;
+                char bufComp[varLen + 1];
+                memset(bufComp, '\0', sizeof(bufComp));
+                memcpy(bufComp, ptr + 1, varLen);
+
+                // loop trough list and find matching var name
+                int i = 0;
+                while (i < MAX_VARIABLES && variables[i].name != NULL) {
+                    // dont even bother with strncmp if the lengths dont match
+                    if (variables[i].len != varLen) {
+                        i++;
+                        continue;
+                    };
+
+                    // finally compare
+                    if (!strncmp(bufComp, variables[i].name, variables[i].len)) {
+                        tokens[j].val  = variables[i].value;
+                        tokens[j].type = NUMBER;
+                        break;
+                    }
+
+                    i++;
+                }
+
+                ptr = close + 1;
+                j++;
+                mode = !mode;
+                continue;
+            }
+
+            // functions
             if (getFuncIndex(ptr) != -1) {
                 char *open = ptr;
                 char *close = findFuncClose(ptr, &open, NULL);
@@ -215,18 +297,18 @@ static inline double calculateBuffer(const char *buf, const int highestPrio) {
 
                 tokens[j].type = NUMBER;
                 switch (getFuncIndex(ptr)) {
-                    case SQUARE_ROOT: tokens[j].val = sqrt (calculateBuffer(child, childPrio)); break;
-                    case CUBE_ROOT:   tokens[j].val = cbrt (calculateBuffer(child, childPrio)); break;
-                    case SINE:        tokens[j].val = sin  (calculateBuffer(child, childPrio)); break;
-                    case COSINE:      tokens[j].val = cos  (calculateBuffer(child, childPrio)); break;
-                    case TANGENT:     tokens[j].val = tan  (calculateBuffer(child, childPrio)); break;
-                    case N_LOG:       tokens[j].val = log  (calculateBuffer(child, childPrio)); break;
-                    case SINE_H:      tokens[j].val = sinh (calculateBuffer(child, childPrio)); break;
-                    case COSINE_H:    tokens[j].val = cosh (calculateBuffer(child, childPrio)); break;
-                    case TANGENT_H:   tokens[j].val = tanh (calculateBuffer(child, childPrio)); break;
-                    case FLOOR:       tokens[j].val = floor(calculateBuffer(child, childPrio)); break;
-                    case CEILING:     tokens[j].val = ceil (calculateBuffer(child, childPrio)); break;
-                    case GAMMA:       tokens[j].val = gamma(calculateBuffer(child, childPrio)); break;
+                    case SQUARE_ROOT: tokens[j].val = sqrt (calculateBuffer(child, childPrio, variables)); break;
+                    case CUBE_ROOT:   tokens[j].val = cbrt (calculateBuffer(child, childPrio, variables)); break;
+                    case SINE:        tokens[j].val = sin  (calculateBuffer(child, childPrio, variables)); break;
+                    case COSINE:      tokens[j].val = cos  (calculateBuffer(child, childPrio, variables)); break;
+                    case TANGENT:     tokens[j].val = tan  (calculateBuffer(child, childPrio, variables)); break;
+                    case N_LOG:       tokens[j].val = log  (calculateBuffer(child, childPrio, variables)); break;
+                    case SINE_H:      tokens[j].val = sinh (calculateBuffer(child, childPrio, variables)); break;
+                    case COSINE_H:    tokens[j].val = cosh (calculateBuffer(child, childPrio, variables)); break;
+                    case TANGENT_H:   tokens[j].val = tanh (calculateBuffer(child, childPrio, variables)); break;
+                    case FLOOR:       tokens[j].val = floor(calculateBuffer(child, childPrio, variables)); break;
+                    case CEILING:     tokens[j].val = ceil (calculateBuffer(child, childPrio, variables)); break;
+                    case GAMMA:       tokens[j].val = gamma(calculateBuffer(child, childPrio, variables)); break;
                 }
                 ptr = close + 1;
                 j++;
@@ -301,7 +383,7 @@ static inline double calculateBuffer(const char *buf, const int highestPrio) {
 
             // get final
             tokens[i].type = NUMBER;
-            tokens[i].val = calculateBuffer(child, childPrio);
+            tokens[i].val = calculateBuffer(child, childPrio, variables);
             // set skips
             for (int l = i + 1; l <= endIdx; l++) {
                 tokens[l].type = SKIP;
@@ -363,7 +445,7 @@ static inline double calculateBuffer(const char *buf, const int highestPrio) {
 // read buffer, tokenize it, and print by parts
 static inline void printBufColored(const char *buf) {
     // create array
-    size_t count = countTokens(buf, CT_FLAG_READ_BRACKETS);
+    size_t count = countTokens(buf, CT_FLAG_READ_BRACKETS | CT_FLAG_READ_CURLY_BRACKETS);
     struct colorToken tokens[count];
     memset(tokens, '\0', count * sizeof(struct colorToken));
 
@@ -392,6 +474,29 @@ static inline void printBufColored(const char *buf) {
 
             ptr++;
             j++;
+            continue;
+        }
+
+        // variables, cover them fully
+        if (*ptr == '{') {
+            // opening
+            tokens[j].type = SC_CURLY_BRACKETS;
+            tokens[j].ptr  = ptr;
+            j++;
+
+            // contents
+            tokens[j].type = SC_VARIABLES;
+            tokens[j].ptr  = ptr + 1;
+            ptr = findVarClose(ptr++);
+            j++;
+
+            // ending
+            tokens[j].type = SC_CURLY_BRACKETS;
+            tokens[j].ptr  = ptr;
+            ptr++;
+            j++;
+
+            mode = !mode;
             continue;
         }
 
@@ -435,11 +540,14 @@ static inline void printBufColored(const char *buf) {
     for (int i = 0; i < count; i++) {
         if (tokens[i].type == SC_EMPTY) break;
 
-        if      (tokens[i].type == SC_NUMBER)      printf("%s", NUMBER_CLR);
-        else if (tokens[i].type == SC_OPERATOR)    printf("%s", OPERATOR_CLR);
-        else if (tokens[i].type == SC_PARENTHESES) printf("%s", PAREN_CLR);
-        else if (tokens[i].type == SC_BRACKETS)    printf("%s", BRACKETS_CLR);
-        else if (tokens[i].type == SC_FUNCTION)    printf("%s", FUNCTION_CLR);
+        if      (tokens[i].type == SC_NUMBER)            printf("%s", NUMBER_CLR);
+        else if (tokens[i].type == SC_OPERATOR)          printf("%s", OPERATOR_CLR);
+        else if (tokens[i].type == SC_PARENTHESES)       printf("%s", PAREN_CLR);
+        else if (tokens[i].type == SC_BRACKETS)          printf("%s", BRACKETS_CLR);
+        else if (tokens[i].type == SC_FUNCTION)          printf("%s", FUNCTION_CLR);
+        else if (tokens[i].type == SC_CURLY_BRACKETS)    printf("%s", CURLY_BRACKETS_CLR);
+        else if (tokens[i].type == SC_VARIABLES)         printf("%s", VARIABLE_CLR);
+        else printf("%s", RESET);
 
         // only print up to before next pointer
         int len = tokens[i + 1].ptr - tokens[i].ptr;

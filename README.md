@@ -32,6 +32,7 @@ Compiling notes:
 1. Variables and functions named like: aVariable, oneThing, etc.
 2. Keeping input buffer size capped at a reasonable limit (like 4kb).
 3. Making macros whenever possible to standardize definitions.
+4. If possible, exploit C99's definitions for our benefit.
 ### Contributor guidelines
 1. The AGENTS.md in the project isn't an excuse to let agents write code for you. ONLY agent-assisted code will be accepted. AI usage is limited to debugging and helping with code, not writing slop automatically.
 2. Your code has to be up to quality or better than the code present in the project.

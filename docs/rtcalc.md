@@ -1,4 +1,4 @@
-% rtcalc(1) rtcalc 1.14.4
+% rtcalc(1) rtcalc 1.15.4
 % undeleted
 % June 2026
 
@@ -27,6 +27,9 @@ Takes in user input interactively and in real time, calculating the formula prov
 
 `precision=[num]`
 : Sets the printed result's floating point precision to a user set value.
+
+`define:[name]=[val]`
+: Defines a new variable of [name] with a value ([value]). The value field is calculated in the same way that a formula would interactively, meaning that even functions apply. And naturally, you may also use variables defined before in the formula.
 
 # BASIC USAGE
 
@@ -65,6 +68,10 @@ Functions are implemented. Their results are treated as operands.
 You may write formulas inside of functions.
 
 `sqrt[x * y]`
+
+Defined variables may be integrated seamlessly, being treated as regular operands.
+
+`{x} * {y}`
 
 # OPERATORS
 
