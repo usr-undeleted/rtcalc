@@ -60,7 +60,7 @@ struct colorToken {
 #define WELCOME "Welcome to the realtime CLI math tool!"
 #define VALID_LIST "0123456789+-*/().^% "
 #define OPERATIONS "+-*/^%"
-#define DELIMITERS ".()[]+-*/^%{}"
+#define DELIMITERS ".()[]+-*/^%{},"
 // x.y.z
 // x for big, monumental changes, or milestones
 // y for addition of new features
