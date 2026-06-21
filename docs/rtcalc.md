@@ -1,4 +1,4 @@
-% rtcalc(1) rtcalc release 1.21.6
+% rtcalc(1) rtcalc release 1.21.7
 % undeleted
 % June 2026
 
@@ -169,6 +169,11 @@ Note that all trigonometric functions return in radians.
 
 `logx[x, y]` (aka `log_x()`)
 : Perform the base 'y' logarithm of 'x'.
+
+## Geometry
+
+`hypot[x, y]`
+: Get the length of the length of the hypotenuse of a right angle triangle with sides of length 'x' and 'y', from origin (0, 0).
 
 ## Special Functions
 

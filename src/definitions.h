@@ -65,7 +65,7 @@ struct colorToken {
 // x for big, monumental changes, or milestones
 // y for addition of new features
 // z for fixes and small changes
-#define VERSION "release 1.21.6"
+#define VERSION "release 1.21.7"
 // count token flags
 #define CT_FLAG_EMPTY 0
 #define CT_FLAG_READ_BRACKETS 1
@@ -129,6 +129,7 @@ enum funcIndex {
     TRUNCATE,
     ERROR_FUNC,
     ERROR_FUNC_C,
+    HYPOTENUSE,
 };
 
 // used by retToStr()

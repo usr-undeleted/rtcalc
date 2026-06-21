@@ -63,7 +63,7 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
             int index = -1;
             if ((index = getFuncIndex(ptr)) != -1) {
                 // branch off early for multi argument functions
-                if (index == X_LOG) {
+                if (index == X_LOG || index == HYPOTENUSE) {
                     // applies to any function with two arguments
                     // just add the double arg func to the if
                     int ret = 0;
@@ -346,7 +346,7 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
             int index = 0;
             if ((index = getFuncIndex(ptr)) != -1) {
                 // branch off early for multi argument functions
-                if (index == X_LOG) {
+                if (index == X_LOG || index == HYPOTENUSE) {
                     // applies to any function with two arguments
                     // just add the double arg func to the if
                     char *open  = ptr;
@@ -387,6 +387,8 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     switch (getFuncIndex(ptr)) {
                         case X_LOG: tokens[j].val = log(calculateBuffer(childTwo, childTwoPrio, variables)) /
                             log(calculateBuffer(childOne, childOnePrio, variables)); break;
+                        case HYPOTENUSE: tokens[j].val = hypot(calculateBuffer(childOne, childOnePrio, variables),
+                            calculateBuffer(childTwo, childTwoPrio, variables));
                     }
 
                     ptr = close + 1;
