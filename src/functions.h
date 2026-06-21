@@ -302,10 +302,16 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     case SINE:        tokens[j].val = sin  (calculateBuffer(child, childPrio, variables)); break;
                     case COSINE:      tokens[j].val = cos  (calculateBuffer(child, childPrio, variables)); break;
                     case TANGENT:     tokens[j].val = tan  (calculateBuffer(child, childPrio, variables)); break;
-                    case N_LOG:       tokens[j].val = log  (calculateBuffer(child, childPrio, variables)); break;
                     case SINE_H:      tokens[j].val = sinh (calculateBuffer(child, childPrio, variables)); break;
                     case COSINE_H:    tokens[j].val = cosh (calculateBuffer(child, childPrio, variables)); break;
                     case TANGENT_H:   tokens[j].val = tanh (calculateBuffer(child, childPrio, variables)); break;
+                    case SINE_R:      tokens[j].val = asin (calculateBuffer(child, childPrio, variables)); break;
+                    case COSINE_R:    tokens[j].val = acos (calculateBuffer(child, childPrio, variables)); break;
+                    case TANGENT_R:   tokens[j].val = atan (calculateBuffer(child, childPrio, variables)); break;
+                    case SINE_RH:     tokens[j].val = asinh(calculateBuffer(child, childPrio, variables)); break;
+                    case COSINE_RH:   tokens[j].val = acosh(calculateBuffer(child, childPrio, variables)); break;
+                    case TANGENT_RH:  tokens[j].val = atanh(calculateBuffer(child, childPrio, variables)); break;
+                    case N_LOG:       tokens[j].val = log  (calculateBuffer(child, childPrio, variables)); break;
                     case FLOOR:       tokens[j].val = floor(calculateBuffer(child, childPrio, variables)); break;
                     case CEILING:     tokens[j].val = ceil (calculateBuffer(child, childPrio, variables)); break;
                     case GAMMA:       tokens[j].val = gamma(calculateBuffer(child, childPrio, variables)); break;

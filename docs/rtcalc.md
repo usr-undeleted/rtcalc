@@ -97,6 +97,8 @@ Defined variables may be integrated seamlessly, being treated as regular operand
 
 ## Trigonometric
 
+Note that all trigonometric functions return in radians.
+
 `sin[x]`
 : Perform the sine of 'x'.
 
@@ -112,8 +114,26 @@ Defined variables may be integrated seamlessly, being treated as regular operand
 `cosh[x]`
 : Perform the hyperbolic cosine of 'x'.
 
-`tanh[x]`
+`tan[x]`
 : Perform the hyperbolic tangent of 'x'.
+
+`asin[x]`
+: Perform the reverse sine of 'x'.
+
+`acos[x]`
+: Perform the reverse cosine of 'x'.
+
+`atan[x]`
+: Perform the reverse tangent of 'x'.
+
+`asinh[x]`
+: Perform the reverse hyperbolic sine of 'x'.
+
+`acosh[x]`
+: Perform the reverse hyperbolic cosine of 'x'.
+
+`atanh[x]`
+: Perform the reverse hyperbolic tangent of 'x'.
 
 ## Rounding
 
@@ -130,6 +150,9 @@ Defined variables may be integrated seamlessly, being treated as regular operand
 
 `cbrt[x]`
 : Perform the cube root of 'x'.
+
+`log[x]`
+: Perform the natural logarithm of 'x'.
 
 ## Special Functions
 

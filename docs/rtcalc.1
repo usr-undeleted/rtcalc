@@ -95,6 +95,7 @@ Perform division, and return the rest.
 Perform exponentiation.
 .SH FUNCTIONS
 .SS Trigonometric
+Note that all trigonometric functions return in radians.
 .TP
 \f[CR]sin[x]\f[R]
 Perform the sine of `x'.
@@ -111,8 +112,26 @@ Perform the hyperbolic sine of `x'.
 \f[CR]cosh[x]\f[R]
 Perform the hyperbolic cosine of `x'.
 .TP
-\f[CR]tanh[x]\f[R]
+\f[CR]tan[x]\f[R]
 Perform the hyperbolic tangent of `x'.
+.TP
+\f[CR]asin[x]\f[R]
+Perform the reverse sine of `x'.
+.TP
+\f[CR]acos[x]\f[R]
+Perform the reverse cosine of `x'.
+.TP
+\f[CR]atan[x]\f[R]
+Perform the reverse tangent of `x'.
+.TP
+\f[CR]asinh[x]\f[R]
+Perform the reverse hyperbolic sine of `x'.
+.TP
+\f[CR]acosh[x]\f[R]
+Perform the reverse hyperbolic cosine of `x'.
+.TP
+\f[CR]atanh[x]\f[R]
+Perform the reverse hyperbolic tangent of `x'.
 .SS Rounding
 .TP
 \f[CR]floor[x]\f[R]
@@ -127,6 +146,9 @@ Perform the square root of `x'.
 .TP
 \f[CR]cbrt[x]\f[R]
 Perform the cube root of `x'.
+.TP
+\f[CR]log[x]\f[R]
+Perform the natural logarithm of `x'.
 .SS Special Functions
 .TP
 \f[CR]gamma[x]\f[R]
