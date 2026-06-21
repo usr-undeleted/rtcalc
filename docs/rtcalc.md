@@ -157,6 +157,15 @@ Note that all trigonometric functions return in radians.
 `log[x]`
 : Perform the natural logarithm of 'x'.
 
+`log10[x]`
+: Perform the base 10 logarithm of 'x'.
+
+`log2[x]`
+: Perform the base 2 logarithm of 'x'.
+
+`logx[x, y]`
+: Perform the base 'y' logarithm of 'x'.
+
 ## Special Functions
 
 `gamma[x]`

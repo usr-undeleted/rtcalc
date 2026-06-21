@@ -26,7 +26,8 @@ enum tokenColorType {
     SC_PARENTHESES,
     SC_BRACKETS,
     SC_CURLY_BRACKETS,
-    SC_VARIABLES
+    SC_VARIABLES,
+    SC_COMMA
 };
 
 // used by calculateBuffer
@@ -69,6 +70,7 @@ struct colorToken {
 #define CT_FLAG_EMPTY 0
 #define CT_FLAG_READ_BRACKETS 1
 #define CT_FLAG_READ_CURLY_BRACKETS 2
+#define CT_FLAG_READ_COMMAS 4
 
 // colors
 #define RESET     "\e[0m"
@@ -86,7 +88,6 @@ struct colorToken {
 
 // error
 #define ERROR_CLR RED
-
 // syntax highlighting
 #define NUMBER_CLR         YELLOW
 #define OPERATOR_CLR       MAGENTA
@@ -95,12 +96,12 @@ struct colorToken {
 #define PAREN_CLR          BLUE
 #define CURLY_BRACKETS_CLR RED
 #define VARIABLE_CLR       YELLOW
+#define COMMA_CLR          GREEN
 
 // flags for main() to use
 extern unsigned char globalFlags;
 // syntax highlight
 #define USE_PRETTY_COLORS 1
-#define DEFINE_ENV_VARS 2
 
 enum funcIndex {
     SQUARE_ROOT,
@@ -120,6 +121,9 @@ enum funcIndex {
     FLOOR,
     CEILING,
     N_LOG,
+    D_LOG,
+    B_LOG,
+    X_LOG,
     GAMMA,
     TRUNCATE,
     ERROR_FUNC,

@@ -60,10 +60,68 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
             }
 
             // functions
-            if (getFuncIndex(ptr) != -1) {
-                // square root
+            int index = -1;
+            if ((index = getFuncIndex(ptr)) != -1) {
+                // branch off early for multi argument functions
+                if (index == X_LOG) {
+                    // applies to any function with two arguments
+                    // just add the double arg func to the if
+                    int ret = 0;
+                    char *open  = ptr;
+                    char *close = ptr;
+                    if ((close = findFuncClose(ptr, &open, &ret)) == NULL || ret) return ret;
+
+                    // check if we have empty brackets
+                    uint8_t isEmpty = 1;
+                    char *val = open + 1;
+                    while (val != close) {
+                        if (!*val) break;
+                        if (!isspace(*val)) {
+                            isEmpty = 0;
+                            break;
+                        }
+                        val++;
+                    }
+                    if (isEmpty) return 11;
+
+                    // before making children, find ','
+                    char *comma = findFuncComma(open + 1, close - 1);
+                    if (!comma) return 15;
+                    // too many args, like "[x,y,z]"
+                    if (findFuncComma(comma + 1, close - 1)) return 16;
+
+                    // check children content
+                    // empty first child
+                    char *childCheck = open + 1;
+                    skipWhitespace((const char **)&childCheck);
+                    if (childCheck == comma) return 17;
+                    // empty second child
+                    childCheck = comma + 1;
+                    skipWhitespace((const char **)&childCheck);
+                    if (childCheck == close) return 18;
+
+                    // first child
+                    size_t childOneLen = comma - open - 1;
+                    char childOne[childOneLen + 1];
+                    memset(childOne, '\0', childOneLen + 1);
+                    memcpy(childOne, open + 1, childOneLen);
+                    if ((ret = validateBuffer(childOne, NULL, variables))) return ret;
+
+                    // second child
+                    size_t childTwoLen = close - comma - 1;
+                    char childTwo[childTwoLen + 1];
+                    memset(childTwo, '\0', childTwoLen + 1);
+                    memcpy(childTwo, comma + 1, childTwoLen);
+                    if ((ret = validateBuffer(childTwo, NULL, variables))) return ret;
+
+                    ptr = close + 1;
+                    nums++;
+                    mode = !mode;
+                    continue;
+                }
+
                 int ret = 0;
-                char *open = ptr;
+                char *open  = ptr;
                 char *close = ptr;
                 if ((close = findFuncClose(ptr, &open, &ret)) == NULL || ret) return ret;
 
@@ -91,7 +149,6 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
                 nums++;
                 mode = !mode;
                 continue;
-
             }
         }
 
@@ -180,11 +237,19 @@ static inline size_t countTokens(const char *buf, const char flags) {
                     ptr = open;
                 } else {
                     ptr = close + 1;
+                    mode = !mode;
                 }
                 count++;
-                mode = !mode;
                 continue;
             }
+        }
+
+        // commas, for in-beetwen funcs
+        if (flags & CT_FLAG_READ_COMMAS && *ptr == ',') {
+            ptr++;
+            count++;
+            mode = !mode;
+            continue;
         }
 
         // parentheses
@@ -278,7 +343,58 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
             }
 
             // functions
-            if (getFuncIndex(ptr) != -1) {
+            int index = 0;
+            if ((index = getFuncIndex(ptr)) != -1) {
+                // branch off early for multi argument functions
+                if (index == X_LOG) {
+                    // applies to any function with two arguments
+                    // just add the double arg func to the if
+                    char *open  = ptr;
+                    char *close = ptr;
+                    close = findFuncClose(ptr, &open, NULL);
+
+                    // before making children, find ','
+                    char *comma = findFuncComma(open + 1, close - 1);
+
+                    // first child
+                    size_t childOneLen = comma - open - 1;
+                    char childOne[childOneLen + 1];
+                    memset(childOne, '\0', childOneLen + 1);
+                    memcpy(childOne, open + 1, childOneLen);
+                    // get child highest prio
+                    size_t childOnePrio = 0;
+                    for (int i = 0; i < childOneLen; i++) {
+                        if (!strchr(OPERATIONS, childOne[i])) continue;
+                        int loopPrio = getPriority(childOne[i]);
+                        if (loopPrio > childOnePrio) childOnePrio = loopPrio;
+                    }
+
+                    // second child
+                    size_t childTwoLen = close - comma - 1;
+                    char childTwo[childTwoLen + 1];
+                    memset(childTwo, '\0', childTwoLen + 1);
+                    memcpy(childTwo, comma + 1, childTwoLen);
+                    // get child highest prio
+                    size_t childTwoPrio = 0;
+                    for (int i = 0; i < childTwoLen; i++) {
+                        if (!strchr(OPERATIONS, childTwo[i])) continue;
+                        int loopPrio = getPriority(childTwo[i]);
+                        if (loopPrio > childTwoPrio) childTwoPrio = loopPrio;
+                    }
+
+                    // populate token
+                    tokens[j].type = NUMBER;
+                    switch (getFuncIndex(ptr)) {
+                        case X_LOG: tokens[j].val = log(calculateBuffer(childTwo, childTwoPrio, variables)) /
+                            log(calculateBuffer(childOne, childOnePrio, variables)); break;
+                    }
+
+                    ptr = close + 1;
+                    j++;
+                    mode = !mode;
+                    continue;
+                }
+
                 char *open = ptr;
                 char *close = findFuncClose(ptr, &open, NULL);
                 size_t childPrio = 0;
@@ -296,7 +412,7 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                 }
 
                 tokens[j].type = NUMBER;
-                switch (getFuncIndex(ptr)) {
+                switch (index) {
                     case SQUARE_ROOT:  tokens[j].val = sqrt (calculateBuffer(child, childPrio, variables)); break;
                     case CUBE_ROOT:    tokens[j].val = cbrt (calculateBuffer(child, childPrio, variables)); break;
                     case SINE:         tokens[j].val = sin  (calculateBuffer(child, childPrio, variables)); break;
@@ -312,6 +428,8 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     case COSINE_RH:    tokens[j].val = acosh(calculateBuffer(child, childPrio, variables)); break;
                     case TANGENT_RH:   tokens[j].val = atanh(calculateBuffer(child, childPrio, variables)); break;
                     case N_LOG:        tokens[j].val = log  (calculateBuffer(child, childPrio, variables)); break;
+                    case D_LOG:        tokens[j].val = log10(calculateBuffer(child, childPrio, variables)); break;
+                    case B_LOG:        tokens[j].val = log2 (calculateBuffer(child, childPrio, variables)); break;
                     case FLOOR:        tokens[j].val = floor(calculateBuffer(child, childPrio, variables)); break;
                     case CEILING:      tokens[j].val = ceil (calculateBuffer(child, childPrio, variables)); break;
                     case GAMMA:        tokens[j].val = gamma(calculateBuffer(child, childPrio, variables)); break;
@@ -454,7 +572,9 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
 // read buffer, tokenize it, and print by parts
 static inline void printBufColored(const char *buf) {
     // create array
-    size_t count = countTokens(buf, CT_FLAG_READ_BRACKETS | CT_FLAG_READ_CURLY_BRACKETS);
+    size_t count = countTokens(buf, CT_FLAG_READ_BRACKETS |
+        CT_FLAG_READ_CURLY_BRACKETS |
+        CT_FLAG_READ_COMMAS);
     struct colorToken tokens[count];
     memset(tokens, '\0', count * sizeof(struct colorToken));
 
@@ -476,11 +596,23 @@ static inline void printBufColored(const char *buf) {
             continue;
         }
 
+        // commas
+        if (*ptr == ',') {
+            tokens[j].type = SC_COMMA;
+            tokens[j].ptr  = ptr;
+
+            mode = !mode;
+            ptr++;
+            j++;
+            continue;
+        }
+
         // parentheses
         if (*ptr == '(' || *ptr == ')') {
             tokens[j].type = SC_PARENTHESES;
             tokens[j].ptr  = ptr;
 
+            mode = !mode;
             ptr++;
             j++;
             continue;
@@ -556,6 +688,7 @@ static inline void printBufColored(const char *buf) {
         else if (tokens[i].type == SC_FUNCTION)          printf("%s", FUNCTION_CLR);
         else if (tokens[i].type == SC_CURLY_BRACKETS)    printf("%s", CURLY_BRACKETS_CLR);
         else if (tokens[i].type == SC_VARIABLES)         printf("%s", VARIABLE_CLR);
+        else if (tokens[i].type == SC_COMMA)             printf("%s", COMMA_CLR);
         else printf("%s", RESET);
 
         // only print up to before next pointer

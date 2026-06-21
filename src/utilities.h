@@ -160,6 +160,9 @@ static inline int getFuncIndex(const char *ptr) {
     if (!strncmp(ptr, "acosh", 5)) return COSINE_RH;
     if (!strncmp(ptr, "atanh", 5)) return TANGENT_RH;
     if (!strncmp(ptr, "trunc", 5)) return TRUNCATE;
+    if (!strncmp(ptr, "log10", 5)) return D_LOG;
+    if (!strncmp(ptr, "log2",  4)) return B_LOG;
+    if (!strncmp(ptr, "logx",  4)) return X_LOG;
     if (!strncmp(ptr, "ceil",  4)) return CEILING;
     if (!strncmp(ptr, "sqrt",  4)) return SQUARE_ROOT;
     if (!strncmp(ptr, "cbrt",  4)) return CUBE_ROOT;
@@ -193,8 +196,12 @@ static inline char *retToStr(char err) {
         case 10: return (char *)"A function has invalid brackets."; break;
         case 11: return (char *)"A function has no contents."; break;
         case 12: return (char *)"Result display size limit reached - Sorry!"; break;
-        case 13: return (char *)"Invalid formula insertion, unclosed curly brackets."; break;
-        case 14: return (char *)"Invalid formula insertion, unknown variable."; break;
+        case 13: return (char *)"Invalid variable insertion, unclosed curly brackets."; break;
+        case 14: return (char *)"Invalid variable insertion, unknown variable."; break;
+        case 15: return (char *)"Not enough arguments for a multi-arg function."; break;
+        case 16: return (char *)"Too many arguments for a multi-arg function."; break;
+        case 17: return (char *)"Invalid first argument for a multi-arg function."; break;
+        case 18: return (char *)"Invalid second argument for a multi-arg function."; break;
         default: return (char *)"Unknown error num - Sorry! :p"; break;
     }
 }
@@ -213,6 +220,27 @@ static inline defaultPrecision calculateTrio(defaultPrecision left, char op, def
     }
 
     return result;
+}
+
+// for double argument functions, find the ',' for the main function
+// return NULL on malformation
+// assumes that buf starts right after function opener ('[')
+static inline char *findFuncComma(const char *buf, const char *end) {
+    char *ptr = (char *)buf;
+    unsigned int depth = 0;
+
+    while (ptr != end) {
+        // tweak depth
+        if (*ptr == '(' || *ptr == '[' || *ptr == '{') depth++;
+        if (*ptr == ')' || *ptr == ']' || *ptr == '}') depth--;
+
+        // set comma
+        if (*ptr == ',' && depth == 0) return ptr;
+
+        ptr++;
+    }
+
+    return NULL;
 }
 
 #endif
