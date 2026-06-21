@@ -1,4 +1,4 @@
-% rtcalc(1) rtcalc release 1.21.7
+% rtcalc(1) rtcalc release 1.23.6
 % undeleted
 % June 2026
 
@@ -179,6 +179,9 @@ Note that all trigonometric functions return in radians.
 
 `gamma[x]`
 : Perform the gamma of 'x'.
+
+`lgamma[x]`
+: Perform the natural logarithm of the absolute gamma of 'x'.
 
 # NAVIGATION
 

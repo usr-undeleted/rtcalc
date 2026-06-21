@@ -154,31 +154,32 @@ static inline uint8_t getPriority(const char operation) {
 // find proper func and return enum equivalent, return -1 on fail
 // remember to keep higher strlen ones at the top
 static inline int getFuncIndex(const char *ptr) {
-    if (!strncmp(ptr, "floor", 5)) return FLOOR;
-    if (!strncmp(ptr, "gamma", 5)) return GAMMA;
-    if (!strncmp(ptr, "asinh", 5)) return SINE_RH;
-    if (!strncmp(ptr, "acosh", 5)) return COSINE_RH;
-    if (!strncmp(ptr, "atanh", 5)) return TANGENT_RH;
-    if (!strncmp(ptr, "trunc", 5)) return TRUNCATE;
-    if (!strncmp(ptr, "log10", 5)) return D_LOG;
-    if (!strncmp(ptr, "hypot", 5)) return HYPOTENUSE;
-    if (!strncmp(ptr, "log2",  4)) return B_LOG;
-    if (!strncmp(ptr, "logx",  4)) return X_LOG;
-    if (!strncmp(ptr, "ceil",  4)) return CEILING;
-    if (!strncmp(ptr, "sqrt",  4)) return SQUARE_ROOT;
-    if (!strncmp(ptr, "cbrt",  4)) return CUBE_ROOT;
-    if (!strncmp(ptr, "sinh",  4)) return SINE_H;
-    if (!strncmp(ptr, "cosh",  4)) return COSINE_H;
-    if (!strncmp(ptr, "tanh",  4)) return TANGENT_H;
-    if (!strncmp(ptr, "asin",  4)) return SINE_R;
-    if (!strncmp(ptr, "acos",  4)) return COSINE_R;
-    if (!strncmp(ptr, "atan",  4)) return TANGENT_R;
-    if (!strncmp(ptr, "erfc",  4)) return ERROR_FUNC_C;
-    if (!strncmp(ptr, "erf",   3)) return ERROR_FUNC;
-    if (!strncmp(ptr, "sin",   3)) return SINE;
-    if (!strncmp(ptr, "cos",   3)) return COSINE;
-    if (!strncmp(ptr, "tan",   3)) return TANGENT;
-    if (!strncmp(ptr, "log",   3)) return N_LOG;
+    if (!strncmp(ptr, "lgamma", 6)) return L_GAMMA;
+    if (!strncmp(ptr, "floor", 5))  return FLOOR;
+    if (!strncmp(ptr, "gamma", 5))  return GAMMA;
+    if (!strncmp(ptr, "asinh", 5))  return SINE_RH;
+    if (!strncmp(ptr, "acosh", 5))  return COSINE_RH;
+    if (!strncmp(ptr, "atanh", 5))  return TANGENT_RH;
+    if (!strncmp(ptr, "trunc", 5))  return TRUNCATE;
+    if (!strncmp(ptr, "log10", 5))  return D_LOG;
+    if (!strncmp(ptr, "hypot", 5))  return HYPOTENUSE;
+    if (!strncmp(ptr, "log2",  4))  return B_LOG;
+    if (!strncmp(ptr, "logx",  4))  return X_LOG;
+    if (!strncmp(ptr, "ceil",  4))  return CEILING;
+    if (!strncmp(ptr, "sqrt",  4))  return SQUARE_ROOT;
+    if (!strncmp(ptr, "cbrt",  4))  return CUBE_ROOT;
+    if (!strncmp(ptr, "sinh",  4))  return SINE_H;
+    if (!strncmp(ptr, "cosh",  4))  return COSINE_H;
+    if (!strncmp(ptr, "tanh",  4))  return TANGENT_H;
+    if (!strncmp(ptr, "asin",  4))  return SINE_R;
+    if (!strncmp(ptr, "acos",  4))  return COSINE_R;
+    if (!strncmp(ptr, "atan",  4))  return TANGENT_R;
+    if (!strncmp(ptr, "erfc",  4))  return ERROR_FUNC_C;
+    if (!strncmp(ptr, "erf",   3))  return ERROR_FUNC;
+    if (!strncmp(ptr, "sin",   3))  return SINE;
+    if (!strncmp(ptr, "cos",   3))  return COSINE;
+    if (!strncmp(ptr, "tan",   3))  return TANGENT;
+    if (!strncmp(ptr, "log",   3))  return N_LOG;
     return -1;
 }
 
