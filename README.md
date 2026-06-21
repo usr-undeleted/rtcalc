@@ -34,7 +34,7 @@ Compiling notes:
 3. Making macros whenever possible to standardize definitions.
 4. If possible, exploit C99's definitions for our benefit.
 ### Contributor guidelines
-1. The AGENTS.md in the project isn't an excuse to let agents write code for you. ONLY agent-assisted code will be accepted. AI usage is limited to debugging and helping with code, not writing slop automatically.
+1. AI usage is limited to debugging and helping with code, not writing slop automatically. AI code will be rejected.
 2. Your code has to be up to quality or better than the code present in the project.
 3. If your code isn't readable, your code won't be accepted.
 4. Don't try to reinvent the wheel. Huge code changes will only lead to complications down the line.
