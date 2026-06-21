@@ -395,6 +395,8 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                             calculateBuffer(childTwo, childTwoPrio, variables)); break;
                         case MINIMUN:    tokens[j].val = fmin (calculateBuffer(childOne, childOnePrio, variables),
                             calculateBuffer(childTwo, childTwoPrio, variables)); break;
+                        case POWER_FUNC: tokens[j].val = pow  (calculateBuffer(childOne, childOnePrio, variables),
+                            calculateBuffer(childTwo, childTwoPrio, variables)); break;
                     }
 
                     ptr = close + 1;
@@ -447,6 +449,8 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     case ERROR_FUNC_C: tokens[j].val = erfc  (calculateBuffer(child, childPrio, variables)); break;
                     case ABSOLUTE:     tokens[j].val = fabs  (calculateBuffer(child, childPrio, variables)); break;
                     case ROUND:        tokens[j].val = round (calculateBuffer(child, childPrio, variables)); break;
+                    case EXPONENT_E:   tokens[j].val = exp   (calculateBuffer(child, childPrio, variables)); break;
+                    case EXPONENT_2:   tokens[j].val = exp2  (calculateBuffer(child, childPrio, variables)); break;
                     case RAD_TO_DEG:   tokens[j].val = calculateBuffer(child, childPrio, variables) * 180.0 / M_PI; break;
                     case DEG_TO_RAD:   tokens[j].val = calculateBuffer(child, childPrio, variables) * M_PI / 180.0; break;
                 }

@@ -1,4 +1,4 @@
-% rtcalc(1) rtcalc release 1.26.7
+% rtcalc(1) rtcalc release 1.27.7
 % undeleted
 % June 2026
 
@@ -183,6 +183,15 @@ Note that all trigonometric functions return in radians.
 
 `logx[x, y]` (aka `log_x()`)
 : Perform the base 'y' logarithm of 'x'.
+
+`exp[x]`
+: Perform the value of E ^ 'x'.
+
+`exp2[x]`
+: Perform the value of 2 ^ 'x'.
+
+`pow[x, y]`
+: Get the result of 'x' to the power of 'y'. Equivalent to operator '`^`'.
 
 ## Geometry
 
