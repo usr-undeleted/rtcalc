@@ -8,7 +8,7 @@ rtcalc - Interactive CLI math program
 
 # SYNOPSIS
 
-`calc` [flags]
+`rtcalc` [flags]
 
 # DESCRIPTION
 
