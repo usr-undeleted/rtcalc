@@ -45,6 +45,7 @@ static inline void helpMenu(char *error, int ret) {
         "- \e[1m\"prompt=<prompt>\"\e[0m: Define a custom prompt before startup (space not included).\n"
         "- \e[1m\"syntax-highlighting\"\e[0m: Enable syntax highlighting on the input.\n"
         "- \e[1m\"precision=<num>\"\e[0m: Define what precision to show results in. Defaults to 6.\n"
+        "- \e[1m\"define:<name>=<num>\"\e[0m: Create an immutable variable acessible during runtime. Definition of value may be a formula supported by the program, and may include variables defined earlier.\n"
         "%s"
         ,
         VERSION, BUFFER_SIZE - 1, RESULT_SIZE - 1, error != NULL ? error : "");
