@@ -446,6 +446,7 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     case ERROR_FUNC:   tokens[j].val = erf   (calculateBuffer(child, childPrio, variables)); break;
                     case ERROR_FUNC_C: tokens[j].val = erfc  (calculateBuffer(child, childPrio, variables)); break;
                     case ABSOLUTE:     tokens[j].val = fabs  (calculateBuffer(child, childPrio, variables)); break;
+                    case ROUND:        tokens[j].val = round (calculateBuffer(child, childPrio, variables)); break;
                 }
                 ptr = close + 1;
                 j++;

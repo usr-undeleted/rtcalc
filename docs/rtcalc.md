@@ -1,4 +1,4 @@
-% rtcalc(1) rtcalc release 1.23.7
+% rtcalc(1) rtcalc release 1.25.7
 % undeleted
 % June 2026
 
@@ -152,6 +152,9 @@ Note that all trigonometric functions return in radians.
 
 `trunc[x]`
 : Get the integer part of 'x'.
+
+`round[x]`
+: Round 'x' to the nearest integer.
 
 ## Exponential
 

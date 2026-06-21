@@ -164,6 +164,7 @@ static inline int getFuncIndex(const char *ptr) {
     if (!strncmp(ptr, "trunc",  5)) return TRUNCATE;
     if (!strncmp(ptr, "log10",  5)) return D_LOG;
     if (!strncmp(ptr, "hypot",  5)) return HYPOTENUSE;
+    if (!strncmp(ptr, "round",  5)) return ROUND;
     if (!strncmp(ptr, "log2",   4)) return B_LOG;
     if (!strncmp(ptr, "logx",   4)) return X_LOG;
     if (!strncmp(ptr, "ceil",   4)) return CEILING;

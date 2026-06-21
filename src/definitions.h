@@ -65,7 +65,7 @@ struct colorToken {
 // x for big, monumental changes, or milestones
 // y for addition of new features
 // z for fixes and small changes
-#define VERSION "release 1.24.7"
+#define VERSION "release 1.25.7"
 // count token flags
 #define CT_FLAG_EMPTY 0
 #define CT_FLAG_READ_BRACKETS 1
@@ -130,6 +130,7 @@ enum funcIndex {
     ERROR_FUNC_C,
     L_GAMMA,
     ABSOLUTE,
+    ROUND,
     // the enum below is padding for multi arg funcs
     // done in order to make our lifes easier
     // multi arg funcs HAVE to be below this padding
