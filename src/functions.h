@@ -385,17 +385,17 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     // populate token
                     tokens[j].type = NUMBER;
                     switch (getFuncIndex(ptr)) {
-                        case X_LOG: tokens[j].val = log(calculateBuffer(childTwo, childTwoPrio, variables)) /
-                            log(calculateBuffer(childOne, childOnePrio, variables)); break;
-                        case HYPOTENUSE: tokens[j].val = hypot(calculateBuffer(childOne, childOnePrio, variables),
+                        case X_LOG: tokens[j].val      = DF_LOGX (calculateBuffer(childOne, childOnePrio, variables),
                             calculateBuffer(childTwo, childTwoPrio, variables)); break;
-                        case TANGENT_A2: tokens[j].val = atan2(calculateBuffer(childOne, childOnePrio, variables),
+                        case HYPOTENUSE: tokens[j].val = DF_HYPOT(calculateBuffer(childOne, childOnePrio, variables),
                             calculateBuffer(childTwo, childTwoPrio, variables)); break;
-                        case MAXIMUM:    tokens[j].val = fmax (calculateBuffer(childOne, childOnePrio, variables),
+                        case TANGENT_A2: tokens[j].val = DF_ATAN2(calculateBuffer(childOne, childOnePrio, variables),
                             calculateBuffer(childTwo, childTwoPrio, variables)); break;
-                        case MINIMUN:    tokens[j].val = fmin (calculateBuffer(childOne, childOnePrio, variables),
+                        case MAXIMUM:    tokens[j].val = DF_FMAX(calculateBuffer(childOne, childOnePrio, variables),
                             calculateBuffer(childTwo, childTwoPrio, variables)); break;
-                        case POWER_FUNC: tokens[j].val = pow  (calculateBuffer(childOne, childOnePrio, variables),
+                        case MINIMUN:    tokens[j].val = DF_FMIN(calculateBuffer(childOne, childOnePrio, variables),
+                            calculateBuffer(childTwo, childTwoPrio, variables)); break;
+                        case POWER_FUNC: tokens[j].val = DF_POW (calculateBuffer(childOne, childOnePrio, variables),
                             calculateBuffer(childTwo, childTwoPrio, variables)); break;
                     }
 
@@ -423,42 +423,42 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
 
                 tokens[j].type = NUMBER;
                 switch (index) {
-                    case SQUARE_ROOT:  tokens[j].val = sqrt  (calculateBuffer(child, childPrio, variables)); break;
-                    case CUBE_ROOT:    tokens[j].val = cbrt  (calculateBuffer(child, childPrio, variables)); break;
-                    case SINE:         tokens[j].val = sin   (calculateBuffer(child, childPrio, variables)); break;
-                    case COSINE:       tokens[j].val = cos   (calculateBuffer(child, childPrio, variables)); break;
-                    case TANGENT:      tokens[j].val = tan   (calculateBuffer(child, childPrio, variables)); break;
-                    case SINE_H:       tokens[j].val = sinh  (calculateBuffer(child, childPrio, variables)); break;
-                    case COSINE_H:     tokens[j].val = cosh  (calculateBuffer(child, childPrio, variables)); break;
-                    case TANGENT_H:    tokens[j].val = tanh  (calculateBuffer(child, childPrio, variables)); break;
-                    case SINE_R:       tokens[j].val = asin  (calculateBuffer(child, childPrio, variables)); break;
-                    case COSINE_R:     tokens[j].val = acos  (calculateBuffer(child, childPrio, variables)); break;
-                    case TANGENT_R:    tokens[j].val = atan  (calculateBuffer(child, childPrio, variables)); break;
-                    case SINE_RH:      tokens[j].val = asinh (calculateBuffer(child, childPrio, variables)); break;
-                    case COSINE_RH:    tokens[j].val = acosh (calculateBuffer(child, childPrio, variables)); break;
-                    case TANGENT_RH:   tokens[j].val = atanh (calculateBuffer(child, childPrio, variables)); break;
-                    case N_LOG:        tokens[j].val = log   (calculateBuffer(child, childPrio, variables)); break;
-                    case D_LOG:        tokens[j].val = log10 (calculateBuffer(child, childPrio, variables)); break;
-                    case B_LOG:        tokens[j].val = log2  (calculateBuffer(child, childPrio, variables)); break;
-                    case FLOOR:        tokens[j].val = floor (calculateBuffer(child, childPrio, variables)); break;
-                    case CEILING:      tokens[j].val = ceil  (calculateBuffer(child, childPrio, variables)); break;
-                    case GAMMA:        tokens[j].val = gamma (calculateBuffer(child, childPrio, variables)); break;
-                    case L_GAMMA:      tokens[j].val = lgamma(calculateBuffer(child, childPrio, variables)); break;
-                    case TRUNCATE:     tokens[j].val = trunc (calculateBuffer(child, childPrio, variables)); break;
-                    case ERROR_FUNC:   tokens[j].val = erf   (calculateBuffer(child, childPrio, variables)); break;
-                    case ERROR_FUNC_C: tokens[j].val = erfc  (calculateBuffer(child, childPrio, variables)); break;
-                    case ABSOLUTE:     tokens[j].val = fabs  (calculateBuffer(child, childPrio, variables)); break;
-                    case ROUND:        tokens[j].val = round (calculateBuffer(child, childPrio, variables)); break;
-                    case EXPONENT_E:   tokens[j].val = exp   (calculateBuffer(child, childPrio, variables)); break;
-                    case EXPONENT_2:   tokens[j].val = exp2  (calculateBuffer(child, childPrio, variables)); break;
-                    case COSECANT:     tokens[j].val = 1.0 / sin (calculateBuffer(child, childPrio, variables));    break;
-                    case SECANT:       tokens[j].val = 1.0 / cos (calculateBuffer(child, childPrio, variables));    break;
-                    case COTANGENT:    tokens[j].val = 1.0 / tan (calculateBuffer(child, childPrio, variables));    break;
-                    case COSECANT_H:   tokens[j].val = 1.0 / sinh(calculateBuffer(child, childPrio, variables));    break;
-                    case SECANT_H:     tokens[j].val = 1.0 / cosh(calculateBuffer(child, childPrio, variables));    break;
-                    case COTANGENT_H:  tokens[j].val = 1.0 / tanh(calculateBuffer(child, childPrio, variables));    break;
-                    case RAD_TO_DEG:   tokens[j].val = calculateBuffer(child, childPrio, variables) * 180.0 / M_PI; break;
-                    case DEG_TO_RAD:   tokens[j].val = calculateBuffer(child, childPrio, variables) * M_PI / 180.0; break;
+                    case SQUARE_ROOT:  tokens[j].val = DF_SQRT  (calculateBuffer(child, childPrio, variables)); break;
+                    case CUBE_ROOT:    tokens[j].val = DF_CBRT  (calculateBuffer(child, childPrio, variables)); break;
+                    case SINE:         tokens[j].val = DF_SIN   (calculateBuffer(child, childPrio, variables)); break;
+                    case COSINE:       tokens[j].val = DF_COS   (calculateBuffer(child, childPrio, variables)); break;
+                    case TANGENT:      tokens[j].val = DF_TAN   (calculateBuffer(child, childPrio, variables)); break;
+                    case SINE_H:       tokens[j].val = DF_SINH  (calculateBuffer(child, childPrio, variables)); break;
+                    case COSINE_H:     tokens[j].val = DF_COSH  (calculateBuffer(child, childPrio, variables)); break;
+                    case TANGENT_H:    tokens[j].val = DF_TANH  (calculateBuffer(child, childPrio, variables)); break;
+                    case SINE_R:       tokens[j].val = DF_ASIN  (calculateBuffer(child, childPrio, variables)); break;
+                    case COSINE_R:     tokens[j].val = DF_ACOS  (calculateBuffer(child, childPrio, variables)); break;
+                    case TANGENT_R:    tokens[j].val = DF_ATAN  (calculateBuffer(child, childPrio, variables)); break;
+                    case SINE_RH:      tokens[j].val = DF_ASINH (calculateBuffer(child, childPrio, variables)); break;
+                    case COSINE_RH:    tokens[j].val = DF_ACOSH (calculateBuffer(child, childPrio, variables)); break;
+                    case TANGENT_RH:   tokens[j].val = DF_ATANH (calculateBuffer(child, childPrio, variables)); break;
+                    case N_LOG:        tokens[j].val = DF_LOG   (calculateBuffer(child, childPrio, variables)); break;
+                    case D_LOG:        tokens[j].val = DF_LOG10 (calculateBuffer(child, childPrio, variables)); break;
+                    case B_LOG:        tokens[j].val = DF_LOG2  (calculateBuffer(child, childPrio, variables)); break;
+                    case FLOOR:        tokens[j].val = DF_FLOOR (calculateBuffer(child, childPrio, variables)); break;
+                    case CEILING:      tokens[j].val = DF_CEIL  (calculateBuffer(child, childPrio, variables)); break;
+                    case GAMMA:        tokens[j].val = DF_GAMMA (calculateBuffer(child, childPrio, variables)); break;
+                    case L_GAMMA:      tokens[j].val = DF_LGAMMA(calculateBuffer(child, childPrio, variables)); break;
+                    case TRUNCATE:     tokens[j].val = DF_TRUNC (calculateBuffer(child, childPrio, variables)); break;
+                    case ERROR_FUNC:   tokens[j].val = DF_ERF   (calculateBuffer(child, childPrio, variables)); break;
+                    case ERROR_FUNC_C: tokens[j].val = DF_ERFC  (calculateBuffer(child, childPrio, variables)); break;
+                    case ABSOLUTE:     tokens[j].val = DF_ABS   (calculateBuffer(child, childPrio, variables)); break;
+                    case ROUND:        tokens[j].val = DF_ROUND (calculateBuffer(child, childPrio, variables)); break;
+                    case EXPONENT_E:   tokens[j].val = DF_EXP   (calculateBuffer(child, childPrio, variables)); break;
+                    case EXPONENT_2:   tokens[j].val = DF_EXP2  (calculateBuffer(child, childPrio, variables)); break;
+                    case COSECANT:     tokens[j].val = DF_CSC   (calculateBuffer(child, childPrio, variables)); break;
+                    case SECANT:       tokens[j].val = DF_SEC   (calculateBuffer(child, childPrio, variables)); break;
+                    case COTANGENT:    tokens[j].val = DF_COT   (calculateBuffer(child, childPrio, variables)); break;
+                    case COSECANT_H:   tokens[j].val = DF_CSCH  (calculateBuffer(child, childPrio, variables)); break;
+                    case SECANT_H:     tokens[j].val = DF_SECH  (calculateBuffer(child, childPrio, variables)); break;
+                    case COTANGENT_H:  tokens[j].val = DF_COTH  (calculateBuffer(child, childPrio, variables)); break;
+                    case RAD_TO_DEG:   tokens[j].val = DF_DEG   (calculateBuffer(child, childPrio, variables)); break;
+                    case DEG_TO_RAD:   tokens[j].val = DF_RAD   (calculateBuffer(child, childPrio, variables)); break;
                 }
                 ptr = close + 1;
                 j++;

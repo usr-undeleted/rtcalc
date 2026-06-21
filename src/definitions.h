@@ -6,10 +6,99 @@
 #ifdef USE_LONG_DOUBLE
 #define FORMAT_WITH_PRECISION "%.*Lf"
 typedef long double defaultPrecision;
+// functions (df for defined function)
+#define DF_SQRT(x)       sqrtl  (x)
+#define DF_CBRT(x)       cbrtl  (x)
+#define DF_SIN(x)        sinl   (x)
+#define DF_COS(x)        cosl   (x)
+#define DF_TAN(x)        tanl   (x)
+#define DF_SINH(x)       sinhl  (x)
+#define DF_COSH(x)       coshl  (x)
+#define DF_TANH(x)       tanhl  (x)
+#define DF_ASIN(x)       asinl  (x)
+#define DF_ACOS(x)       acosl  (x)
+#define DF_ATAN(x)       atanl  (x)
+#define DF_ASINH(x)      asinhl (x)
+#define DF_ACOSH(x)      acoshl (x)
+#define DF_ATANH(x)      atanhl (x)
+#define DF_CSC(x)        1.0 / DF_SIN (x)
+#define DF_SEC(x)        1.0 / DF_COS (x)
+#define DF_COT(x)        1.0 / DF_TAN (x)
+#define DF_CSCH(x)       1.0 / DF_SINH(x)
+#define DF_SECH(x)       1.0 / DF_COSH(x)
+#define DF_COTH(x)       1.0 / DF_TANH(x)
+#define DF_FLOOR(x)      floorl (x)
+#define DF_CEIL(x)       ceill  (x)
+#define DF_LOG(x)        logl   (x)
+#define DF_LOG10(x)      log10l (x)
+#define DF_LOG2(x)       log2l  (x)
+#define DF_GAMMA(x)      gammal (x)
+#define DF_TRUNC(x)      truncl (x)
+#define DF_ERF(x)        erfl   (x)
+#define DF_ERFC(x)       erfcl  (x)
+#define DF_LGAMMA(x)     lgammal(x)
+#define DF_ABS(x)        fabsl  (x)
+#define DF_ROUND(x)      roundl (x)
+#define DF_DEG(x)        x / M_PI * 180.0
+#define DF_RAD(x)        x / 180.0 * M_PI
+#define DF_EXP(x)        expl   (x)
+#define DF_EXP2(x)       exp2l  (x)
+// multi args below
+#define DF_FMAX(x, y)    fmaxl (x, y)
+#define DF_FMIN(x, y)    fminl (x, y)
+#define DF_POW(x,y)      powl  (x,y)
+#define DF_HYPOT(x,y)    hypotl(x,y)
+#define DF_LOGX(x,y)     DF_LOG(y) / DF_LOG(x)
+#define DF_ATAN2(x,y)    atan2l(x,y)
 #else
 #define FORMAT_WITH_PRECISION "%.*lf"
 typedef double defaultPrecision;
-#endif
+// functions (df for defined function)
+#define DF_SQRT(x)       sqrt  (x)
+#define DF_CBRT(x)       cbrt  (x)
+#define DF_SIN(x)        sin   (x)
+#define DF_COS(x)        cos   (x)
+#define DF_TAN(x)        tan   (x)
+#define DF_SINH(x)       sinh  (x)
+#define DF_COSH(x)       cosh  (x)
+#define DF_TANH(x)       tanh  (x)
+#define DF_ASIN(x)       asin  (x)
+#define DF_ACOS(x)       acos  (x)
+#define DF_ATAN(x)       atan  (x)
+#define DF_ASINH(x)      asinh (x)
+#define DF_ACOSH(x)      acosh (x)
+#define DF_ATANH(x)      atanh (x)
+#define DF_CSC(x)        1.0 / DF_SIN (x)
+#define DF_SEC(x)        1.0 / DF_COS (x)
+#define DF_COT(x)        1.0 / DF_TAN (x)
+#define DF_CSCH(x)       1.0 / DF_SINH(x)
+#define DF_SECH(x)       1.0 / DF_COSH(x)
+#define DF_COTH(x)       1.0 / DF_TANH(x)
+#define DF_FLOOR(x)      floor (x)
+#define DF_CEIL(x)       ceil  (x)
+#define DF_LOG(x)        log   (x)
+#define DF_LOG10(x)      log10 (x)
+#define DF_LOG2(x)       log2  (x)
+#define DF_GAMMA(x)      gamma (x)
+#define DF_TRUNC(x)      trunc (x)
+#define DF_ERF(x)        erf   (x)
+#define DF_ERFC(x)       erfc  (x)
+#define DF_LGAMMA(x)     lgamma(x)
+#define DF_ABS(x)        fabs  (x)
+#define DF_ROUND(x)      round (x)
+#define DF_DEG(x)        x / M_PI * 180.0
+#define DF_RAD(x)        x / 180.0 * M_PI
+#define DF_EXP(x)        exp   (x)
+#define DF_EXP2(x)       exp2  (x)
+// multi args below
+#define DF_FMAX(x, y)    fmax (x, y)
+#define DF_FMIN(x, y)    fmin (x, y)
+#define DF_POW(x,y)      pow  (x,y)
+#define DF_HYPOT(x,y)    hypot(x,y)
+#define DF_LOGX(x,y)     DF_LOG(y) / DF_LOG(x)
+#define DF_ATAN2(x,y)    atan2(x,y)
+#endif // USE_LONG_DOUBLE
+
 
 enum tokenType {
     SKIP,
@@ -65,7 +154,7 @@ struct colorToken {
 // x for big, monumental changes, or milestones
 // y for addition of new features
 // z for fixes and small changes
-#define VERSION "release 1.28.7"
+#define VERSION "release 1.28.8"
 // count token flags
 #define CT_FLAG_EMPTY 0
 #define CT_FLAG_READ_BRACKETS 1
