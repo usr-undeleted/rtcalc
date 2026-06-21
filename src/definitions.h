@@ -119,6 +119,7 @@ enum funcIndex {
     SINE_RH,
     COSINE_RH,
     TANGENT_RH,
+    TANGENT_A2,
     FLOOR,
     CEILING,
     N_LOG,

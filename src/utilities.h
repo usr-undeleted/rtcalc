@@ -155,6 +155,7 @@ static inline uint8_t getPriority(const char operation) {
 // remember to keep higher strlen ones at the top
 static inline int getFuncIndex(const char *ptr) {
     if (!strncmp(ptr, "lgamma", 6)) return L_GAMMA;
+    if (!strncmp(ptr, "atan2",  5)) return TANGENT_A2;
     if (!strncmp(ptr, "floor",  5)) return FLOOR;
     if (!strncmp(ptr, "gamma",  5)) return GAMMA;
     if (!strncmp(ptr, "asinh",  5)) return SINE_RH;
