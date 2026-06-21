@@ -121,6 +121,7 @@ enum funcIndex {
     CEILING,
     N_LOG,
     GAMMA,
+    TRUNCATE,
 };
 
 // environment variable

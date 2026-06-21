@@ -143,6 +143,9 @@ Note that all trigonometric functions return in radians.
 `ceil[x]`
 : Get the ceiling of 'x'.
 
+`trunc[x]`
+: Get the integer part of 'x'.
+
 ## Exponential
 
 `sqrt[x]`

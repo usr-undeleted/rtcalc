@@ -159,6 +159,7 @@ static inline int getFuncIndex(const char *ptr) {
     if (!strncmp(ptr, "asinh", 5)) return SINE_RH;
     if (!strncmp(ptr, "acosh", 5)) return COSINE_RH;
     if (!strncmp(ptr, "atanh", 5)) return TANGENT_RH;
+    if (!strncmp(ptr, "trunc", 5)) return TRUNCATE;
     if (!strncmp(ptr, "ceil",  4)) return CEILING;
     if (!strncmp(ptr, "sqrt",  4)) return SQUARE_ROOT;
     if (!strncmp(ptr, "cbrt",  4)) return CUBE_ROOT;

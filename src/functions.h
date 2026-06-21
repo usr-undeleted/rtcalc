@@ -315,6 +315,7 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     case FLOOR:       tokens[j].val = floor(calculateBuffer(child, childPrio, variables)); break;
                     case CEILING:     tokens[j].val = ceil (calculateBuffer(child, childPrio, variables)); break;
                     case GAMMA:       tokens[j].val = gamma(calculateBuffer(child, childPrio, variables)); break;
+                    case TRUNCATE:    tokens[j].val = trunc(calculateBuffer(child, childPrio, variables)); break;
                 }
                 ptr = close + 1;
                 j++;
