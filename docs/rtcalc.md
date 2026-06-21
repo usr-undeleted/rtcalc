@@ -1,4 +1,4 @@
-% rtcalc(1) rtcalc 1.15.4
+% rtcalc(1) rtcalc release 1.21.6
 % undeleted
 % June 2026
 
@@ -72,6 +72,10 @@ You may write formulas inside of functions.
 Defined variables may be integrated seamlessly, being treated as regular operands.
 
 `{x} * {y}`
+
+Specific formulas will required two arguments. Separate each with a comma.
+
+`logx[x , y]`
 
 # OPERATORS
 
@@ -201,6 +205,12 @@ The program offers basic shell-like navigation options.
 
 `CTRL + LEFT ARROW`
 : Move cursor to the left.
+
+# SPECIFIC DETAILS
+
+The input buffer has a limit of 2048 characters.
+
+The result buffer has a limit of 1024 characters.
 
 # DEVELOPER NOTES
 I hope that you like this program <3

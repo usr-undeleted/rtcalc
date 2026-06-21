@@ -53,7 +53,7 @@ struct colorToken {
     char *ptr;
 };
 
-#define BUFFER_SIZE 2049UL // 4096 is the actual limit
+#define BUFFER_SIZE 2049UL // for both result and buf size, actual limit is - 1
 #define RESULT_SIZE 1025UL
 #define USER_MISTAKE 2
 #define CODE_MISTAKE 1
@@ -65,7 +65,7 @@ struct colorToken {
 // x for big, monumental changes, or milestones
 // y for addition of new features
 // z for fixes and small changes
-#define VERSION "release 1.15.4"
+#define VERSION "release 1.21.6"
 // count token flags
 #define CT_FLAG_EMPTY 0
 #define CT_FLAG_READ_BRACKETS 1
