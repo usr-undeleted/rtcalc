@@ -5,18 +5,14 @@ POSIX CLI tool that, in real time, take in user input and calculate the formula 
 A manual is provided under docs/ in both manpage and markdown formats.
 
 ## Compilation
-All testing is done with the `clang` compiler. Bug reports compiled without clang won't be considered. This also applies to compiling flags.  
 ```
-make
+cargo build --release
 ```
-To finally run the program, run:
+To run the program:
 ```
-./rtcalc
-```
-Compiling notes:  
-- For compile flags, the makefile uses "`COMPILE_FLAGS`". Define it when calling make to enable specific flags.
-- For output path, which is, by default, `bin/` on the source dir, the makefile uses "`OUTPUT_PATH`". Define it to specify where the output will be. Note that this doesn't include the binary name.
-- Defining "`USE_LONG_DOUBLE`" increases precision by switching from a regular `double` floating point to a `long double` floating point, going from 64 bits to 128 bits. Note that switching might carry no difference, as implementation may vary from architecture to architecture.
+./target/release/rtcalc
+```  
+Note: The `long-double` Cargo feature can be enabled for increased precision (`--features long-double`), though this has no effect on stable Rust (which lacks `f128`). On nightly with `f128` stabilized, it will switch from `f64` to 128-bit floats.
 
 ## Plans
 - Even more shell-like navigation features
@@ -31,8 +27,7 @@ Compiling notes:
 ### Specific design decisions
 1. Variables and functions named like: aVariable, oneThing, etc.
 2. Keeping input buffer size capped at a reasonable limit (like 4kb).
-3. Making macros whenever possible to standardize definitions.
-4. If possible, exploit C99's definitions for our benefit.
+3. Making constants whenever possible to standardize definitions.
 ### Contributor guidelines
 1. AI usage is limited to debugging and helping with code, not writing slop automatically. AI code will be rejected.
 2. Your code has to be up to quality or better than the code present in the project.
@@ -41,6 +36,6 @@ Compiling notes:
 5. DO NOT FORGET TO BUMP VERSION, UPDATE MANUAL, AND README
 ### Project files
 - src/
-Contains headers and main .c file.
+Contains Rust source modules: `main.rs` (entry point + terminal loop), `definitions.rs` (types/constants), `functions.rs` (validation/calculation/syntax coloring), `utilities.rs` (helpers).
 - docs/
 Contains documentation, in both markdown format and manpage format.

@@ -1,0 +1,16 @@
+[package]
+name = "rtcalc"
+version = "1.28.8"
+edition = "2021"
+authors = ["Undeleted <3"]
+license = "GPL-3.0"
+description = "Real-time CLI calculation tool"
+
+[dependencies]
+termion = "4.0"
+ctrlc = "3.4"
+libm = "0.2"
+
+[features]
+default = []
+long-double = []
