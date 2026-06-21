@@ -139,6 +139,9 @@ Note that all trigonometric functions return in radians.
 `atanh[x]`
 : Perform the reverse hyperbolic tangent of 'x'.
 
+`atan2[x]`
+: Get the angle theta from the conversion of rectangular coordinates (x, y) to polar coordinates (r, theta).
+
 ## Rounding
 
 `floor[x]`
@@ -182,6 +185,12 @@ Note that all trigonometric functions return in radians.
 
 `lgamma[x]`
 : Perform the natural logarithm of the absolute gamma of 'x'.
+
+`erf[x]`
+: Perform the value of the error function at 'x'.
+
+`erfc[x]`
+: Perform the value of the complementary error function at 'x'.
 
 # NAVIGATION
 
