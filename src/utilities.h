@@ -169,6 +169,8 @@ static inline int getFuncIndex(const char *ptr) {
     if (!strncmp(ptr, "asin",  4)) return SINE_R;
     if (!strncmp(ptr, "acos",  4)) return COSINE_R;
     if (!strncmp(ptr, "atan",  4)) return TANGENT_R;
+    if (!strncmp(ptr, "erfc",  4)) return ERROR_FUNC_C;
+    if (!strncmp(ptr, "erf",   3)) return ERROR_FUNC;
     if (!strncmp(ptr, "sin",   3)) return SINE;
     if (!strncmp(ptr, "cos",   3)) return COSINE;
     if (!strncmp(ptr, "tan",   3)) return TANGENT;

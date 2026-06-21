@@ -122,6 +122,8 @@ enum funcIndex {
     N_LOG,
     GAMMA,
     TRUNCATE,
+    ERROR_FUNC,
+    ERROR_FUNC_C,
 };
 
 // environment variable
