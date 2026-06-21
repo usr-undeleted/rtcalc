@@ -1,4 +1,4 @@
-% rtcalc(1) rtcalc release 1.23.6
+% rtcalc(1) rtcalc release 1.23.7
 % undeleted
 % June 2026
 
