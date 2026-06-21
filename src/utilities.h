@@ -63,7 +63,7 @@ static inline void skipWhitespace(const char **pp) {
 static inline char *findFuncClose(const char *ptr, char **openOut, int *errCode) {
     char *open = strchr((char *)ptr, '[');
     if (!open) {
-        if (errCode != NULL) *errCode = 10;
+        if (errCode != NULL) *errCode = E_FUNC_INVALID_BRACKETS;
         return NULL;
     }
     char *close = open;
@@ -86,7 +86,7 @@ static inline char *findFuncClose(const char *ptr, char **openOut, int *errCode)
         if (depth == 0) break;
     }
     if (depth || close == open) {
-        if (errCode != NULL) *errCode = 10;
+        if (errCode != NULL) *errCode = E_FUNC_INVALID_BRACKETS;
         return NULL;
     }
 
@@ -181,27 +181,27 @@ static inline int getFuncIndex(const char *ptr) {
     return -1;
 }
 
-// used by func above
+// get validateBuffer error and spit out string
 static inline char *retToStr(char err) {
     switch (err) {
-        case  1: return (char *)"Invalid character in formula."; break;
-        case  2: return (char *)"Not enough closing parentheses."; break;
-        case  3: return (char *)"Not enough opening parentheses."; break;
-        case  4: return (char *)"Invalid operand."; break;
-        case  5: return (char *)"Invalid operator."; break;
-        case  6: return (char *)"Not enough numbers for calculation"; break;
-        case  7: return (char *)"Not enough operators for calculation"; break;
-        case  8: return (char *)"Empty parentheses."; break;
-        case  9: return (char *)"Input size limit reached - Sorry!"; break;
-        case 10: return (char *)"A function has invalid brackets."; break;
-        case 11: return (char *)"A function has no contents."; break;
-        case 12: return (char *)"Result display size limit reached - Sorry!"; break;
-        case 13: return (char *)"Invalid variable insertion, unclosed curly brackets."; break;
-        case 14: return (char *)"Invalid variable insertion, unknown variable."; break;
-        case 15: return (char *)"Not enough arguments for a multi-arg function."; break;
-        case 16: return (char *)"Too many arguments for a multi-arg function."; break;
-        case 17: return (char *)"Invalid first argument for a multi-arg function."; break;
-        case 18: return (char *)"Invalid second argument for a multi-arg function."; break;
+        case E_INVALID_CHAR:             return (char *)"Invalid character in formula."; break;
+        case E_INSUFFICIENT_CLOSE_PAREN: return (char *)"Not enough closing parentheses."; break;
+        case E_INSUFFICIENT_OPEN_PAREN:  return (char *)"Not enough opening parentheses."; break;
+        case E_INVALID_OPERAND:          return (char *)"Invalid operand."; break;
+        case E_INVALID_OPERATOR:         return (char *)"Invalid operator."; break;
+        case E_INSUFFICIENT_NUMS:        return (char *)"Not enough numbers for calculation"; break;
+        case E_INSUFFICIENT_OPS:         return (char *)"Not enough operators for calculation"; break;
+        case E_EMPTY_PAREN:              return (char *)"Empty parentheses."; break;
+        case E_FUNC_INVALID_BRACKETS:    return (char *)"A function has invalid brackets."; break;
+        case E_EMPTY_FUNCTION:           return (char *)"A function has no contents."; break;
+        case E_VAR_OPEN_BRACKETS:        return (char *)"Invalid variable insertion, unclosed curly brackets."; break;
+        case E_VAR_UNKNOWN:              return (char *)"Invalid variable insertion, unknown variable."; break;
+        case E_MULTI_ARG_INSUFFICIENT:   return (char *)"Not enough arguments for a multi-arg function."; break;
+        case E_MULTI_ARG_EXCESS:         return (char *)"Too many arguments for a multi-arg function."; break;
+        case E_MULTI_ARG_INVALID_FIRST:  return (char *)"Invalid first argument for a multi-arg function."; break;
+        case E_MULTI_ARG_INVALID_SECOND: return (char *)"Invalid second argument for a multi-arg function."; break;
+        case E_DISPLAY_SIZE_LIMIT:       return (char *)"Result display size limit reached - Sorry!"; break;
+        case E_INPUT_SIZE_LIMIT:         return (char *)"Input size limit reached - Sorry!"; break;
         default: return (char *)"Unknown error num - Sorry! :p"; break;
     }
 }

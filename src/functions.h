@@ -26,7 +26,7 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
             if (*ptr == '{') {
                 char *close = ptr;
                 // open is ptr
-                if (!(close = findVarClose(ptr))) return 13;
+                if (!(close = findVarClose(ptr))) return E_VAR_OPEN_BRACKETS;
                 // form buffer comparator
                 size_t varLen = close - ptr - 1;
                 char bufComp[varLen + 1];
@@ -51,7 +51,7 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
 
                     i++;
                 }
-                if (fail) return 14;
+                if (fail) return E_VAR_UNKNOWN;
 
                 ptr = close + 1;
                 nums++;
@@ -82,23 +82,23 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
                         }
                         val++;
                     }
-                    if (isEmpty) return 11;
+                    if (isEmpty) return E_EMPTY_FUNCTION;
 
                     // before making children, find ','
                     char *comma = findFuncComma(open + 1, close - 1);
-                    if (!comma) return 15;
+                    if (!comma) return E_MULTI_ARG_INSUFFICIENT;
                     // too many args, like "[x,y,z]"
-                    if (findFuncComma(comma + 1, close - 1)) return 16;
+                    if (findFuncComma(comma + 1, close - 1)) return E_MULTI_ARG_EXCESS;
 
                     // check children content
                     // empty first child
                     char *childCheck = open + 1;
                     skipWhitespace((const char **)&childCheck);
-                    if (childCheck == comma) return 17;
+                    if (childCheck == comma) return E_MULTI_ARG_INVALID_FIRST;
                     // empty second child
                     childCheck = comma + 1;
                     skipWhitespace((const char **)&childCheck);
-                    if (childCheck == close) return 18;
+                    if (childCheck == close) return E_MULTI_ARG_INVALID_SECOND;
 
                     // first child
                     size_t childOneLen = comma - open - 1;
@@ -136,7 +136,7 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
                     }
                     val++;
                 }
-                if (isEmpty) return 11;
+                if (isEmpty) return E_EMPTY_FUNCTION;
 
                 // make child to be checked
                 size_t childLen = close - open - 1;
@@ -153,12 +153,12 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
         }
 
         // invalid chars
-        if (!strchr(VALID_LIST, *ptr)) return 1;
+        if (!strchr(VALID_LIST, *ptr)) return E_INVALID_CHAR;
 
         // find unclosed parentheses
         switch (*ptr) {
             case '(': {
-                if (lastWasParen) return 8;
+                if (lastWasParen) return E_EMPTY_PAREN;
                 lastWasParen = 1;
 
                 openParentheses++;
@@ -166,12 +166,12 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
                 continue;
             }
             case ')': {
-                if (lastWasParen) return 8;
+                if (lastWasParen) return E_EMPTY_PAREN;
 
                 if (openParentheses) {
                     openParentheses--;
                 } else {
-                    return 3;
+                    return E_INSUFFICIENT_OPEN_PAREN;
                 }
                 ptr++;
                 continue;
@@ -184,12 +184,12 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
             nums++;
             char *prev = ptr;
             strtod(ptr, &ptr);
-            if (ptr == prev) return 4; // pointer didnt move
+            if (ptr == prev) return E_INVALID_OPERAND; // pointer didnt move
 
         } else {
             // operators
             ops++;
-            if (!strchr(OPERATIONS, *ptr)) return 5; // invalid operator
+            if (!strchr(OPERATIONS, *ptr)) return E_INVALID_OPERATOR; // invalid operator
 
             if (highestPrio != NULL) {
                 uint8_t prio = getPriority(*ptr), tru = 0;
@@ -206,13 +206,13 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
 
     if (nums > (ops + 1)) {
         // too manu numbers
-        return 7;
+        return E_INSUFFICIENT_OPS;
     } else if (ops > (nums - 1)) {
         // too many operators
-        return 6;
+        return E_INSUFFICIENT_NUMS;
     }
 
-    if (openParentheses > 0) return 2;
+    if (openParentheses > 0) return E_INSUFFICIENT_CLOSE_PAREN;
     return 0;
 }
 

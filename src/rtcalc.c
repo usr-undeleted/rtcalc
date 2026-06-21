@@ -131,7 +131,7 @@ int main (int argc, char *argv[]) {
     while(1) {
         int highestPrio = 0;
         uint8_t ret = validateBuffer(calcBuffer, &highestPrio, variables); // find errors
-        if (cursorPos >= 4096) ret = 9; // input size limit
+        if (cursorPos >= 4096) ret = E_INPUT_SIZE_LIMIT; // input size limit
 
         // define result
         if (!ret) {
@@ -172,7 +172,7 @@ int main (int argc, char *argv[]) {
             printf("%s%s\e[0m", ret ? ERROR_CLR : "", calcBuffer);
         }
 
-        if (ret == 9) continue;
+        if (ret == E_INPUT_SIZE_LIMIT) continue;
 
         int len = strlen(calcBuffer);
         // move the cursor

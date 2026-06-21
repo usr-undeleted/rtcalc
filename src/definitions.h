@@ -103,6 +103,7 @@ extern unsigned char globalFlags;
 // syntax highlight
 #define USE_PRETTY_COLORS 1
 
+// what function was found by func indexer
 enum funcIndex {
     SQUARE_ROOT,
     CUBE_ROOT,
@@ -128,6 +129,29 @@ enum funcIndex {
     TRUNCATE,
     ERROR_FUNC,
     ERROR_FUNC_C,
+};
+
+// used by retToStr()
+enum retErrStr {
+    E_SEEMINGLY_OKAY, // padding
+    E_INVALID_CHAR,
+    E_INSUFFICIENT_CLOSE_PAREN,
+    E_INSUFFICIENT_OPEN_PAREN,
+    E_EMPTY_PAREN,
+    E_INVALID_OPERAND,
+    E_INVALID_OPERATOR,
+    E_INSUFFICIENT_NUMS,
+    E_INSUFFICIENT_OPS,
+    E_FUNC_INVALID_BRACKETS,
+    E_EMPTY_FUNCTION,
+    E_VAR_OPEN_BRACKETS,
+    E_VAR_UNKNOWN,
+    E_MULTI_ARG_INSUFFICIENT,
+    E_MULTI_ARG_EXCESS,
+    E_MULTI_ARG_INVALID_FIRST,
+    E_MULTI_ARG_INVALID_SECOND,
+    E_DISPLAY_SIZE_LIMIT,
+    E_INPUT_SIZE_LIMIT,
 };
 
 // environment variable
