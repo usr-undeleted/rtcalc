@@ -119,24 +119,32 @@ enum funcIndex {
     SINE_RH,
     COSINE_RH,
     TANGENT_RH,
-    TANGENT_A2,
     FLOOR,
     CEILING,
     N_LOG,
     D_LOG,
     B_LOG,
-    X_LOG,
     GAMMA,
     TRUNCATE,
     ERROR_FUNC,
     ERROR_FUNC_C,
-    HYPOTENUSE,
     L_GAMMA,
+    // the enum below is padding for multi arg funcs
+    // done in order to make our lifes easier
+    // multi arg funcs HAVE to be below this padding
+    // single arg funcs HAVE to be above this padding
+    MULTI_ARG_FUNC_PADDING,
+    // now, everything down here is multi-arg
+    HYPOTENUSE,
+    X_LOG,
+    TANGENT_A2,
 };
 
 // used by retToStr()
 enum retErrStr {
-    E_SEEMINGLY_OKAY, // padding
+    // ret is checked if non zero to error, therefore, padding on 0
+    E_SEEMINGLY_OKAY,
+    // everything down is a real error
     E_INVALID_CHAR,
     E_INSUFFICIENT_CLOSE_PAREN,
     E_INSUFFICIENT_OPEN_PAREN,

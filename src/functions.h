@@ -63,7 +63,7 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
             int index = -1;
             if ((index = getFuncIndex(ptr)) != -1) {
                 // branch off early for multi argument functions
-                if (index == X_LOG || index == HYPOTENUSE || index == TANGENT_A2) {
+                if (index > MULTI_ARG_FUNC_PADDING) {
                     // applies to any function with two arguments
                     // just add the double arg func to the if
                     int ret = 0;
@@ -346,7 +346,7 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
             int index = 0;
             if ((index = getFuncIndex(ptr)) != -1) {
                 // branch off early for multi argument functions
-                if (index == X_LOG || index == HYPOTENUSE || index == TANGENT_A2) {
+                if (index > MULTI_ARG_FUNC_PADDING) {
                     // applies to any function with two arguments
                     // just add the double arg func to the if
                     char *open  = ptr;
