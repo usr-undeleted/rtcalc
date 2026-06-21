@@ -451,6 +451,12 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     case ROUND:        tokens[j].val = round (calculateBuffer(child, childPrio, variables)); break;
                     case EXPONENT_E:   tokens[j].val = exp   (calculateBuffer(child, childPrio, variables)); break;
                     case EXPONENT_2:   tokens[j].val = exp2  (calculateBuffer(child, childPrio, variables)); break;
+                    case COSECANT:     tokens[j].val = 1.0 / sin (calculateBuffer(child, childPrio, variables));    break;
+                    case SECANT:       tokens[j].val = 1.0 / cos (calculateBuffer(child, childPrio, variables));    break;
+                    case COTANGENT:    tokens[j].val = 1.0 / tan (calculateBuffer(child, childPrio, variables));    break;
+                    case COSECANT_H:   tokens[j].val = 1.0 / sinh(calculateBuffer(child, childPrio, variables));    break;
+                    case SECANT_H:     tokens[j].val = 1.0 / cosh(calculateBuffer(child, childPrio, variables));    break;
+                    case COTANGENT_H:  tokens[j].val = 1.0 / tanh(calculateBuffer(child, childPrio, variables));    break;
                     case RAD_TO_DEG:   tokens[j].val = calculateBuffer(child, childPrio, variables) * 180.0 / M_PI; break;
                     case DEG_TO_RAD:   tokens[j].val = calculateBuffer(child, childPrio, variables) * M_PI / 180.0; break;
                 }

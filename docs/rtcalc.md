@@ -1,4 +1,4 @@
-% rtcalc(1) rtcalc release 1.27.7
+% rtcalc(1) rtcalc release 1.28.7
 % undeleted
 % June 2026
 
@@ -141,6 +141,24 @@ Note that all trigonometric functions return in radians.
 
 `atan2[x]`
 : Get the angle theta from the conversion of rectangular coordinates (x, y) to polar coordinates (r, theta).
+
+`csc[x]`
+: Perform the cosecant of 'x'.
+
+`sec[x]`
+: Perform the secant of 'x'.
+
+`cot[x]`
+: Perform the cotangent of 'x'.
+
+`csch[x]`
+: Perform the hyperbolic cosecant of 'x'.
+
+`sech[x]`
+: Perform the hyperbolic secant of 'x'.
+
+`coth[x]`
+: Perform the hyperbolic cotangent of 'x'.
 
 ## Conversion
 

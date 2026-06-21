@@ -179,6 +179,9 @@ static inline int getFuncIndex(const char *ptr) {
     if (!strncmp(ptr, "erfc",   4)) return ERROR_FUNC_C;
     if (!strncmp(ptr, "fmax",   4)) return MAXIMUM;
     if (!strncmp(ptr, "fmin",   4)) return MINIMUN;
+    if (!strncmp(ptr, "csch",   4)) return COSECANT_H;
+    if (!strncmp(ptr, "sech",   4)) return SECANT_H;
+    if (!strncmp(ptr, "coth",   4)) return COTANGENT_H;
     if (!strncmp(ptr, "exp2",   4)) return EXPONENT_2;
     if (!strncmp(ptr, "pow",    3)) return POWER_FUNC;
     if (!strncmp(ptr, "erf",    3)) return ERROR_FUNC;
@@ -190,6 +193,9 @@ static inline int getFuncIndex(const char *ptr) {
     if (!strncmp(ptr, "deg",    3)) return RAD_TO_DEG;
     if (!strncmp(ptr, "rad",    3)) return DEG_TO_RAD;
     if (!strncmp(ptr, "exp",    3)) return EXPONENT_E;
+    if (!strncmp(ptr, "csc",    3)) return COSECANT;
+    if (!strncmp(ptr, "sec",    3)) return SECANT;
+    if (!strncmp(ptr, "cot",    3)) return COTANGENT;
     return -1;
 }
 
