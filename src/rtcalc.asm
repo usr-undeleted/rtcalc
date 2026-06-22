@@ -125,8 +125,8 @@ main:
     test    eax, eax
     jnz     .check_syntax
     ; find '='
-    mov     edi, '='
-    mov     rsi, r12
+    mov     rdi, r12               ; rdi = string pointer
+    mov     esi, '='               ; esi = char to find
     call    strchr wrt ..plt
     test    rax, rax
     jz      .bad_prompt
@@ -158,8 +158,8 @@ main:
     call    strncmp wrt ..plt
     test    eax, eax
     jnz     .check_define
-    mov     edi, '='
-    mov     rsi, r12
+    mov     rdi, r12               ; rdi = string pointer
+    mov     esi, '='               ; esi = char to find
     call    strchr wrt ..plt
     test    rax, rax
     jz      .bad_prec
@@ -336,22 +336,26 @@ main:
 .print_ui:
     ; Display: restore cursor, print result, print prompt, print buffer
     lea     rdi, [rel str_esc_restore]
+    xor     eax, eax
     call    printf wrt ..plt
 
     lea     rdi, [rel str_esc_repl]
     lea     rsi, [rbp - 3074]    ; result
     mov     rdx, [rel g_prompt]  ; prompt
+    xor     eax, eax
     call    printf wrt ..plt
 
     ; Print buffer (with error prefix if needed)
     cmp     r12b, 0
     jnz     .print_err
     lea     rdi, [rbp - 2049]
+    xor     eax, eax
     call    printf wrt ..plt
     jmp     .cursor_pos
 .print_err:
     lea     rdi, [rel .fmt_err_buf]
     lea     rsi, [rbp - 2049]
+    xor     eax, eax
     call    printf wrt ..plt
 
 .cursor_pos:
