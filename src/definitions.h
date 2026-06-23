@@ -116,7 +116,7 @@ enum tokenColorType {
     SC_BRACKETS,
     SC_CURLY_BRACKETS,
     SC_VARIABLES,
-    SC_COMMA
+    SC_ARG_SEP
 };
 
 // used by calculateBuffer
@@ -149,17 +149,17 @@ struct colorToken {
 #define WELCOME "Welcome to the realtime CLI math tool!"
 #define VALID_LIST "0123456789+-*/().^% "
 #define OPERATIONS "+-*/^%"
-#define DELIMITERS ".()[]+-*/^%{},"
+#define DELIMITERS ".()[]+-*/^%{};"
 // x.y.z
 // x for big, monumental changes, or milestones
 // y for addition of new features
 // z for fixes and small changes
-#define VERSION "release 1.28.8"
+#define VERSION "release 1.28.9"
 // count token flags
 #define CT_FLAG_EMPTY 0
 #define CT_FLAG_READ_BRACKETS 1
 #define CT_FLAG_READ_CURLY_BRACKETS 2
-#define CT_FLAG_READ_COMMAS 4
+#define CT_FLAG_READ_ARG_SEP 4
 
 // colors
 #define RESET     "\e[0m"
@@ -185,7 +185,7 @@ struct colorToken {
 #define PAREN_CLR          BLUE
 #define CURLY_BRACKETS_CLR RED
 #define VARIABLE_CLR       YELLOW
-#define COMMA_CLR          GREEN
+#define ARG_SEP_CLR        GREEN
 
 // flags for main() to use
 extern unsigned char globalFlags;

@@ -84,34 +84,34 @@ static inline int validateBuffer(char *buffer, int *highestPrio, const struct va
                     }
                     if (isEmpty) return E_EMPTY_FUNCTION;
 
-                    // before making children, find ','
-                    char *comma = findFuncComma(open + 1, close - 1);
-                    if (!comma) return E_MULTI_ARG_INSUFFICIENT;
-                    // too many args, like "[x,y,z]"
-                    if (findFuncComma(comma + 1, close - 1)) return E_MULTI_ARG_EXCESS;
+                    // before making children, find ';'
+                    char *sep = findFuncSep(open + 1, close - 1);
+                    if (!sep) return E_MULTI_ARG_INSUFFICIENT;
+                    // too many args, like "[x;y;z]"
+                    if (findFuncSep(sep + 1, close - 1)) return E_MULTI_ARG_EXCESS;
 
                     // check children content
                     // empty first child
                     char *childCheck = open + 1;
                     skipWhitespace((const char **)&childCheck);
-                    if (childCheck == comma) return E_MULTI_ARG_INVALID_FIRST;
+                    if (childCheck == sep) return E_MULTI_ARG_INVALID_FIRST;
                     // empty second child
-                    childCheck = comma + 1;
+                    childCheck = sep + 1;
                     skipWhitespace((const char **)&childCheck);
                     if (childCheck == close) return E_MULTI_ARG_INVALID_SECOND;
 
                     // first child
-                    size_t childOneLen = comma - open - 1;
+                    size_t childOneLen = sep - open - 1;
                     char childOne[childOneLen + 1];
                     memset(childOne, '\0', childOneLen + 1);
                     memcpy(childOne, open + 1, childOneLen);
                     if ((ret = validateBuffer(childOne, NULL, variables))) return ret;
 
                     // second child
-                    size_t childTwoLen = close - comma - 1;
+                    size_t childTwoLen = close - sep - 1;
                     char childTwo[childTwoLen + 1];
                     memset(childTwo, '\0', childTwoLen + 1);
-                    memcpy(childTwo, comma + 1, childTwoLen);
+                    memcpy(childTwo, sep + 1, childTwoLen);
                     if ((ret = validateBuffer(childTwo, NULL, variables))) return ret;
 
                     ptr = close + 1;
@@ -244,8 +244,8 @@ static inline size_t countTokens(const char *buf, const char flags) {
             }
         }
 
-        // commas, for in-beetwen funcs
-        if (flags & CT_FLAG_READ_COMMAS && *ptr == ',') {
+        // args separator, for in-beetwen funcs
+        if (flags & CT_FLAG_READ_ARG_SEP && *ptr == ';') {
             ptr++;
             count++;
             mode = !mode;
@@ -353,11 +353,11 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     char *close = ptr;
                     close = findFuncClose(ptr, &open, NULL);
 
-                    // before making children, find ','
-                    char *comma = findFuncComma(open + 1, close - 1);
+                    // before making children, find ';'
+                    char *sep = findFuncSep(open + 1, close - 1);
 
                     // first child
-                    size_t childOneLen = comma - open - 1;
+                    size_t childOneLen = sep - open - 1;
                     char childOne[childOneLen + 1];
                     memset(childOne, '\0', childOneLen + 1);
                     memcpy(childOne, open + 1, childOneLen);
@@ -370,10 +370,10 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     }
 
                     // second child
-                    size_t childTwoLen = close - comma - 1;
+                    size_t childTwoLen = close - sep - 1;
                     char childTwo[childTwoLen + 1];
                     memset(childTwo, '\0', childTwoLen + 1);
-                    memcpy(childTwo, comma + 1, childTwoLen);
+                    memcpy(childTwo, sep + 1, childTwoLen);
                     // get child highest prio
                     size_t childTwoPrio = 0;
                     for (int i = 0; i < childTwoLen; i++) {
@@ -597,7 +597,7 @@ static inline void printBufColored(const char *buf) {
     // create array
     size_t count = countTokens(buf, CT_FLAG_READ_BRACKETS |
         CT_FLAG_READ_CURLY_BRACKETS |
-        CT_FLAG_READ_COMMAS);
+        CT_FLAG_READ_ARG_SEP);
     struct colorToken tokens[count];
     memset(tokens, '\0', count * sizeof(struct colorToken));
 
@@ -619,9 +619,9 @@ static inline void printBufColored(const char *buf) {
             continue;
         }
 
-        // commas
-        if (*ptr == ',') {
-            tokens[j].type = SC_COMMA;
+        // arg separator
+        if (*ptr == ';') {
+            tokens[j].type = SC_ARG_SEP;
             tokens[j].ptr  = ptr;
 
             mode = !mode;
@@ -711,7 +711,7 @@ static inline void printBufColored(const char *buf) {
         else if (tokens[i].type == SC_FUNCTION)          printf("%s", FUNCTION_CLR);
         else if (tokens[i].type == SC_CURLY_BRACKETS)    printf("%s", CURLY_BRACKETS_CLR);
         else if (tokens[i].type == SC_VARIABLES)         printf("%s", VARIABLE_CLR);
-        else if (tokens[i].type == SC_COMMA)             printf("%s", COMMA_CLR);
+        else if (tokens[i].type == SC_ARG_SEP)           printf("%s", ARG_SEP_CLR);
         else printf("%s", RESET);
 
         // only print up to before next pointer
