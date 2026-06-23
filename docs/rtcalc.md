@@ -182,6 +182,12 @@ Note that all trigonometric functions return in radians.
 `round[x]`
 : Round 'x' to the nearest integer.
 
+`rndflr[x, y]`
+: Round 'x's floor to 'y'.
+
+`rndcei[x, y]`
+: Round 'x's ceiling to 'y'.
+
 ## Exponential
 
 `sqrt[x]`

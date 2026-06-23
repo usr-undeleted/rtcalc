@@ -154,6 +154,8 @@ static inline uint8_t getPriority(const char operation) {
 // find proper func and return enum equivalent, return -1 on fail
 // remember to keep higher strlen ones at the top
 static inline int getFuncIndex(const char *ptr) {
+    if (!strncmp(ptr, "rndflr", 6)) return CUSTOM_ROUND_FLOOR;
+    if (!strncmp(ptr, "rndcei", 6)) return CUSTOM_ROUND_CEILING;
     if (!strncmp(ptr, "lgamma", 6)) return L_GAMMA;
     if (!strncmp(ptr, "atan2",  5)) return TANGENT_A2;
     if (!strncmp(ptr, "floor",  5)) return FLOOR;

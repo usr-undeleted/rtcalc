@@ -6,6 +6,16 @@
 
 // the meat of the project
 
+// extra math funcs
+// floor 'x' to 'y'
+static inline defaultPrecision roundfloor(defaultPrecision x, defaultPrecision y) {
+    return y * DF_FLOOR(x / y);
+}
+// ceil 'x' to 'y'
+static inline defaultPrecision roundceil(defaultPrecision x, defaultPrecision y) {
+    return y * DF_CEIL(x / y);
+}
+
 // look for invalid characters
 static inline int validateBuffer(char *buffer, int *highestPrio, const struct variable *variables) {
     char *ptr = buffer;
@@ -385,6 +395,10 @@ static inline defaultPrecision calculateBuffer(const char *buf, const int highes
                     // populate token
                     tokens[j].type = NUMBER;
                     switch (getFuncIndex(ptr)) {
+                        case CUSTOM_ROUND_FLOOR:   tokens[j].val = DF_CUSTOM_RNDFLR(calculateBuffer(childOne, childOnePrio, variables),
+                            calculateBuffer(childTwo, childTwoPrio, variables)); break;
+                        case CUSTOM_ROUND_CEILING: tokens[j].val = DF_CUSTOM_RNDCIL(calculateBuffer(childOne, childOnePrio, variables),
+                            calculateBuffer(childTwo, childTwoPrio, variables)); break;
                         case X_LOG: tokens[j].val      = DF_LOGX (calculateBuffer(childOne, childOnePrio, variables),
                             calculateBuffer(childTwo, childTwoPrio, variables)); break;
                         case HYPOTENUSE: tokens[j].val = DF_HYPOT(calculateBuffer(childOne, childOnePrio, variables),

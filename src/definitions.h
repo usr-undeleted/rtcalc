@@ -44,6 +44,7 @@ typedef long double defaultPrecision;
 #define DF_EXP(x)        expl   (x)
 #define DF_EXP2(x)       exp2l  (x)
 // multi args below
+#define DF_FMOD(x, y)    fmodl (x ,y)
 #define DF_FMAX(x, y)    fmaxl (x, y)
 #define DF_FMIN(x, y)    fminl (x, y)
 #define DF_POW(x,y)      powl  (x,y)
@@ -91,14 +92,17 @@ typedef double defaultPrecision;
 #define DF_EXP(x)        exp   (x)
 #define DF_EXP2(x)       exp2  (x)
 // multi args below
+#define DF_FMOD(x, y)    fmod (x ,y)
 #define DF_FMAX(x, y)    fmax (x, y)
 #define DF_FMIN(x, y)    fmin (x, y)
-#define DF_POW(x,y)      pow  (x,y)
-#define DF_HYPOT(x,y)    hypot(x,y)
+#define DF_POW(x,y)      pow  (x, y)
+#define DF_HYPOT(x,y)    hypot(x, y)
+#define DF_ATAN2(x,y)    atan2(x, y)
 #define DF_LOGX(x,y)     DF_LOG(y) / DF_LOG(x)
-#define DF_ATAN2(x,y)    atan2(x,y)
 #endif // USE_LONG_DOUBLE
-
+// custom funcs
+#define DF_CUSTOM_RNDFLR(x, y) roundfloor(x, y);
+#define DF_CUSTOM_RNDCIL(x, y) roundceil (x, y);
 
 enum tokenType {
     SKIP,
@@ -242,6 +246,9 @@ enum funcIndex {
     HYPOTENUSE,
     X_LOG,
     TANGENT_A2,
+    // custom multi-args
+    CUSTOM_ROUND_FLOOR,
+    CUSTOM_ROUND_CEILING,
 };
 
 // used by retToStr()
