@@ -1,4 +1,5 @@
 #include <asm-generic/errno-base.h>
+#include <asm-generic/ioctls.h>
 #include <ctype.h>
 #include <signal.h>
 #include <stdint.h>
@@ -8,14 +9,21 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/ioctl.h>
 #include "functions.h"
 #include "definitions.h"
 #include "utilities.h"
 
 struct termios backup = { 0 };
 int retCode = 0;
+volatile sig_atomic_t needsRedraw = 0;
 
 int main (int argc, char *argv[]) {
+    if (!isatty(STDIN_FILENO)) {
+        fprintf(stderr, "Not being operated in a terminal - terminating.\n");
+        return USER_MISTAKE;
+    }
+
     unsigned long long precision = 6;
     char *prompt = ">>> ";
     // see definitions for the flags
@@ -100,9 +108,11 @@ int main (int argc, char *argv[]) {
             helpMenu("\n\e[31mError: Improper flag used.\e[0m\n", USER_MISTAKE);
         }
     }
+    const size_t promptLen = strlen(prompt);
 
-    // handle signal
-    signal(SIGINT, handleCtrlC);
+    // handle signals
+    signal(SIGINT,   handleCtrlC);
+    signal(SIGWINCH, handleTermResize);
 
     struct termios newMode = { 0 };
     // populate backup and define new mode
@@ -110,23 +120,40 @@ int main (int argc, char *argv[]) {
         fprintf(stderr, "Failed to backup term attributes: %s\n", strerror(errno));
         return CODE_MISTAKE;
     }
-    atexit(restoreTerminal);
+    atexit(restoreTerminal); // set up putting the terminal back to normal
 
+    // change terminal mode to non-canonical for magic
     newMode = backup;
     newMode.c_lflag &= ~(ICANON | ECHO); // don't wait for new line and dont say anything
     newMode.c_cc[VMIN]  = 1; // get one char at a time
     newMode.c_cc[VTIME] = 0;
-    // set changes
-    tcsetattr(STDIN_FILENO, TCSAFLUSH, &newMode);
+    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &newMode) == -1) {
+        fprintf(stderr, "Failed to change terminal mode: %s\n", strerror(errno));
+        return CODE_MISTAKE;
+    }
+    putchar('\n');
+
+    // get the absolute row
+    printf("\e[6n");
+    char getRowBuf[16] = { 0 };
+    uint32_t startRow = 0; // holds the absolute row of program start
+    scanf("\e[%d;%*dR", &startRow);
 
     // main loop to pupulate main buffer
     char calcBuffer[BUFFER_SIZE] = { 0 };
-    unsigned int cursorPos = 0;
+    ssize_t cursorPos = 0;
 
-    // show prompt + save cursor pos
-    printf("\n%s\e[s", prompt);
+    // show prompt
+    printf("\n%s", prompt);
     char result[RESULT_SIZE] = { 0 };
     size_t resSize = 0;
+
+    // term info
+    struct winsize ws = { 0 };
+    if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) != 0) {
+        fprintf(stderr, "Failed to get terminal info: %s\n", strerror(errno));
+        return CODE_MISTAKE;
+    }
 
     while(1) {
         int highestPrio = 0;
@@ -156,9 +183,9 @@ int main (int argc, char *argv[]) {
             snprintf(result, sizeof(result), "Can't calculate: %s", retToStr(ret));
         }
 
-        printf("\e[u\e[J"               // return cursor back to start
+        printf("\e[%d;1H\e[J"           // return cursor back to start
                "\e[A\r\e[2K%s\r\e[B%s", // replace result and prompt
-               result, prompt
+               startRow, result, prompt
         );
 
         // print buffer itself
@@ -172,12 +199,40 @@ int main (int argc, char *argv[]) {
             printf("%s%s\e[0m", ret ? ERROR_CLR : "", calcBuffer);
         }
 
-        if (ret == E_INPUT_SIZE_LIMIT) continue;
+        // we don't the user to type with a big ass buffer
+        if (ret >= E_INPUT_SIZE_LIMIT) continue;
 
-        int len = strlen(calcBuffer);
-        // move the cursor
-        // only do it when cursor isn't already at the end
-        if (len > cursorPos) printf("\e[%dD", len - cursorPos);
+        ssize_t len = strlen(calcBuffer);
+
+        // if sigwinch was detected
+        if (needsRedraw) {
+            needsRedraw = 0;
+            if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) != 0) {
+                fprintf(stderr, "Failed to get terminal info: %s\n", strerror(errno));
+                return CODE_MISTAKE;
+            }
+            // move everything back to start and clear
+            printf("\e[%d;1H\e[J", startRow);
+            continue;
+        }
+
+        // move cursor, wrapping on terminal edge
+        ssize_t remaining = labs(cursorPos - len);
+        ssize_t currentCol = (promptLen + 1 + len) % ws.ws_col;
+        if (!(currentCol - 1)) putchar('\n');
+        // actual movement
+        while (remaining > 0) {
+            printf("\e[D");
+            remaining--;
+            currentCol--;
+
+            // if we hit the edge
+            if (currentCol == 1 && remaining > 0) {
+                printf("\e[A"   // move on line up
+                    "\e[999C"); // move all the way to the right
+                currentCol = ws.ws_col;
+            }
+        }
 
         char c = getchar();
         // prevent newlines

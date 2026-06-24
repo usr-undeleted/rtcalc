@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <math.h>
+#include <signal.h>
 
 extern int retCode;
 extern struct termios backup;
@@ -132,8 +133,16 @@ static inline char *findVarClose(const char *ptr) {
 
 // respond to ctrl+c
 static inline void handleCtrlC(int sig_num) {
+    (void)sig_num; // shut up clang
     fprintf(stderr, "\nInterrupted, exiting...\n");
     exit(retCode);
+}
+
+// respond to terminal size change
+extern volatile sig_atomic_t needsRedraw;
+static inline void handleTermResize(int sig_num) {
+    (void)sig_num;
+    needsRedraw = 1;
 }
 
 // get backup term info and set terminal back to normal
