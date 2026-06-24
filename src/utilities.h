@@ -251,10 +251,10 @@ static inline defaultPrecision calculateTrio(defaultPrecision left, char op, def
     return result;
 }
 
-// for double argument functions, find the ',' for the main function
+// for double argument functions, find the ';' for the main function
 // return NULL on malformation
 // assumes that buf starts right after function opener ('[')
-static inline char *findFuncComma(const char *buf, const char *end) {
+static inline char *findFuncSep(const char *buf, const char *end) {
     char *ptr = (char *)buf;
     unsigned int depth = 0;
 
@@ -263,8 +263,8 @@ static inline char *findFuncComma(const char *buf, const char *end) {
         if (*ptr == '(' || *ptr == '[' || *ptr == '{') depth++;
         if (*ptr == ')' || *ptr == ']' || *ptr == '}') depth--;
 
-        // set comma
-        if (*ptr == ',' && depth == 0) return ptr;
+        // set separator
+        if (*ptr == ';' && depth == 0) return ptr;
 
         ptr++;
     }

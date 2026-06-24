@@ -65,6 +65,8 @@ Functions are implemented. Their results are treated as operands.
 
 `sqrt[x] + y`
 
+Comma (`,`) may be used as a decimal separator in numbers. Internally it is converted to a dot.
+
 You may write formulas inside of functions.
 
 `sqrt[x * y]`
@@ -73,9 +75,9 @@ Defined variables may be integrated seamlessly, being treated as regular operand
 
 `{x} * {y}`
 
-Specific formulas will required two arguments. Separate each with a comma.
+Specific formulas will required two arguments. Separate each with a semicolon.
 
-`logx[x , y]`
+`logx[x ; y]`
 
 # OPERATORS
 

@@ -89,6 +89,9 @@ int main (int argc, char *argv[]) {
 
             valuePtr++;
 
+            // normalize comma decimal to dot
+            for (char *p = valuePtr; *p; p++) if (*p == ',') *p = '.';
+
             // run calculation stack
             int childHighestPrio = 0;
             char ret = 0;
@@ -402,6 +405,7 @@ int main (int argc, char *argv[]) {
             // append (if character is valid, ofc)
             // we move the buffer to make space, like for when the cursor isnt at the end
             if (isprint(c)) {
+                if (c == ',') c = '.';
                 memmove(&calcBuffer[cursorPos + 1], &calcBuffer[cursorPos], len - cursorPos + 1);
                 calcBuffer[cursorPos++] = c;
             }
