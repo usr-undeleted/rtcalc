@@ -649,7 +649,6 @@ static inline void printBufColored(const char *buf) {
             tokens[j].type = SC_PARENTHESES;
             tokens[j].ptr  = ptr;
 
-            mode = !mode;
             ptr++;
             j++;
             continue;
