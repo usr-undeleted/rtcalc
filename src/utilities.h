@@ -243,8 +243,8 @@ static inline defaultPrecision calculateTrio(defaultPrecision left, char op, def
         case '-': result = left - right; break;
         case '/': result = left / right; break;
         case '*': result = left * right; break;
-        case '^': result = pow(left, right); break;
-        case '%': result = fmod(left, right); break;
+        case '^': result = DF_POW(left, right); break;
+        case '%': result = DF_FMOD(left, right); break;
         default: break;
     }
 
